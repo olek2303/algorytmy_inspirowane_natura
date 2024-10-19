@@ -9,4 +9,5 @@ add_executable(MyProject
         src/main.cpp
         src/distributions.cpp
         src/circle.cpp
+        src/local_search.cpp
 )

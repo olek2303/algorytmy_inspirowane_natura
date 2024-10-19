@@ -1,3 +1,5 @@
+// lab 1
+
 #ifndef DISTRIBUTIONS_H
 #define DISTRIBUTIONS_H
 
