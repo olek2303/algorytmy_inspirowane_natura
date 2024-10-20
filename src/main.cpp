@@ -1,9 +1,9 @@
 #include "../include/distributions.h"
 #include "../include/circle.h"
 #include "../include/local_search.h"
-#include <chrono>
 #include <iostream>
 #include <fstream>
+
 
 void exercise_1() {
     // rozkład równomierny
@@ -27,7 +27,6 @@ void exercise_1() {
 }
 
 void exercise_local_search() {
-    print_current_working_directory();
     auto n1_data = excercise2(N_1);
     std::cout << "N1 done\n";
     auto n2_data = excercise2(N_2);
@@ -35,26 +34,15 @@ void exercise_local_search() {
     auto n3_data = excercise2(N_3);
     std::cout << "N3 done\n";
 
-    save_to_txt(n1_data, "n1_data.txt");
-    save_to_txt(n2_data, "n2_data.txt");
-    save_to_txt(n3_data, "n3_data.txt");
+    save_to_csv(n1_data, "n1_data.csv");
+    save_to_csv(n2_data, "n2_data.csv");
+    save_to_csv(n3_data, "n3_data.csv");
 
-    auto n1_avg = average_evaluation_series(n1_data);
-    auto n2_avg = average_evaluation_series(n2_data);
-    auto n3_avg = average_evaluation_series(n3_data);
-
-    save_avg_to_txt(n1_avg, "n1_avg.txt");
-    save_avg_to_txt(n2_avg, "n2_avg.txt");
-    save_avg_to_txt(n3_avg, "n3_avg.txt");
 }
 
 int main() {
-    auto start_time = std::chrono::high_resolution_clock::now();
 //    exercise_1();
 
     exercise_local_search();
-    auto end_time = std::chrono::high_resolution_clock::now();
-    auto execution_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
-    std::cout << "EXECUTION: --- " << execution_time << " milliseconds ---\n";
     return 0;
 }

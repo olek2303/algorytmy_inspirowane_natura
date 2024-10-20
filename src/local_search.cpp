@@ -65,9 +65,8 @@ std::pair<int, std::vector<double>> first_improvement_local_search(int x, double
                 x = x_prime;
                 improved = true;
                 break;
-            } else {
-                evaluation_values.push_back(evaluation_value_x);
             }
+            evaluation_values.push_back(evaluation_value_x);
         }
 
         if (!improved) {
@@ -81,49 +80,23 @@ std::vector<std::vector<double>> excercise2(int dimensions) {
     int starting_point = (1 << (BITS_PER_DIMENSION * dimensions)) - 1;
     double m = 4;
     std::vector<std::vector<double>> all_evaluation_series;
+    std::vector<long> execution_times;
     for (int i = 0; i < MAX_ITER_EXPERIMENT; ++i) {
+        //start time
+        auto start_time = std::chrono::high_resolution_clock::now();
         auto [_, evaluation_values] = first_improvement_local_search(starting_point, m, dimensions);
+        //end time
+        auto end_time = std::chrono::high_resolution_clock::now();
+        long execution_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
         all_evaluation_series.push_back(evaluation_values);
+        execution_times.push_back({execution_time});
     }
+    std::string file_name = "execution_times_" + std::to_string(dimensions) + ".csv";
+    save_execution_times_to_csv(execution_times, file_name);
     return all_evaluation_series;
 }
 
-std::vector<std::vector<double>> pad_evaluation_series(const std::vector<std::vector<double>>& all_evaluation_series) {
-    size_t max_length = 0;
-    for (const auto& series : all_evaluation_series) {
-        if (series.size() > max_length) {
-            max_length = series.size();
-        }
-    }
-
-    std::vector<std::vector<double>> padded_series;
-    for (const auto& series : all_evaluation_series) {
-        std::vector<double> padded = series;
-        padded.resize(max_length, series.back());
-        padded_series.push_back(padded);
-    }
-    return padded_series;
-}
-
-std::vector<double> average_evaluation_series(const std::vector<std::vector<double>>& all_evaluation_series) {
-    auto padded_series = pad_evaluation_series(all_evaluation_series);
-    size_t series_length = padded_series[0].size();
-    std::vector<double> avg_series(series_length, 0.0);
-
-    for (size_t i = 0; i < series_length; ++i) {
-        for (const auto& series : padded_series) {
-            avg_series[i] += series[i];
-        }
-        avg_series[i] /= padded_series.size();
-    }
-    return avg_series;
-}
-
-void print_current_working_directory() {
-    std::cout << "Current working directory: " << std::filesystem::current_path() << std::endl;
-}
-
-void save_to_txt(const std::vector<std::vector<double>>& data, const std::string& filename) {
+void save_to_csv(const std::vector<std::vector<double>>& data, const std::string& filename) {
     std::cout << "Saving to file: " << filename << std::endl;
     std::ofstream file(filename);
     if (!file.is_open()) {
@@ -131,8 +104,11 @@ void save_to_txt(const std::vector<std::vector<double>>& data, const std::string
         return;
     }
     for (const auto& series : data) {
-        for (double value : series) {
-            file << value << " ";
+        for (size_t i = 0; i < series.size(); ++i) {
+            file << series[i];
+            if (i < series.size() - 1) {
+                file << ";";
+            }
         }
         file << "\n";
     }
@@ -140,15 +116,15 @@ void save_to_txt(const std::vector<std::vector<double>>& data, const std::string
     std::cout << "File saved: " << filename << std::endl;
 }
 
-void save_avg_to_txt(const std::vector<double>& avg_data, const std::string& filename) {
-    std::cout << "Saving to file: " << filename << std::endl;
+void save_execution_times_to_csv(const std::vector<long>& execution_times, const std::string& filename) {
+    std::cout << "Saving execution times to file: " << filename << std::endl;
     std::ofstream file(filename);
     if (!file.is_open()) {
         std::cerr << "Failed to open file: " << filename << std::endl;
         return;
     }
-    for (double value : avg_data) {
-        file << value << "\n";
+    for (const auto& time : execution_times) {
+        file << time << "\n";
     }
     file.close();
     std::cout << "File saved: " << filename << std::endl;
