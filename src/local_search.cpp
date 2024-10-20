@@ -53,25 +53,16 @@ std::pair<int, std::vector<double>> first_improvement_local_search(int x, double
     std::vector<double> evaluation_values;
     while (iteration < MAX_ITER) {
         ++iteration;
-        bool improved = false;
-
-        int total_bits = BITS_PER_DIMENSION * dimensions;
-        for (int i = 0; i < total_bits; ++i) {
-            int x_prime = neighborhood_operator(m, x, dimensions);
-            double evaluation_value_x = evaluation_function(dimensions, x);
-            double evaluation_value_x_prime = evaluation_function(dimensions, x_prime);
-            if (evaluation_value_x_prime < evaluation_value_x) {
-                evaluation_values.push_back(evaluation_value_x_prime);
-                x = x_prime;
-                improved = true;
-                break;
-            }
-            evaluation_values.push_back(evaluation_value_x);
+        int x_prime = neighborhood_operator(m, x, dimensions);
+        double evaluation_value_x = evaluation_function(dimensions, x);
+        double evaluation_value_x_prime = evaluation_function(dimensions, x_prime);
+        if (evaluation_value_x_prime < evaluation_value_x) {
+            evaluation_values.push_back(evaluation_value_x_prime);
+            x = x_prime;
+            continue;
         }
+        evaluation_values.push_back(evaluation_value_x);
 
-        if (!improved) {
-            break;
-        }
     }
     return {x, evaluation_values};
 }
