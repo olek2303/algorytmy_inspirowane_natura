@@ -10,4 +10,6 @@ add_executable(MyProject
         src/distributions.cpp
         src/circle.cpp
         src/local_search.cpp
+        src/simulated_annealing.cpp
+        include/simulated_annealing.h
 )
