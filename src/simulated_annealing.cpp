@@ -27,27 +27,24 @@ double random_uniform()
 
 //template for neighborhood operator
 template<typename T>
-T neighborhood_operator(double m, T x) {
+T neighborhood_operator(double m, T x, double min_value, double max_value) {
     throw std::invalid_argument("Unsupported type for neighborhood operator");
 }
 
 // specify for double
 
 template<>
-std::vector<double> neighborhood_operator(double m, std::vector<double> x) {
+std::vector<double> neighborhood_operator(double m, std::vector<double> x, double min_value, double max_value) {
     std::vector<double> x_prim = x;
     std::mt19937 rng(std::random_device{}());
-    std::uniform_real_distribution<double> dist(-1, 0);
-    double lower_bound = -3.0;  // Zakres dziedziny (dla przykładu)
-    double upper_bound = 3.0;   // Zakres dziedziny (dla przykładu)
+    std::uniform_real_distribution<double> dist(-1, 1);
 
     for (double &i : x_prim) {
         i += dist(rng);  // Dodaj losową liczbę
-        std::cout << "i: " << i << std::endl;
-        if (i < lower_bound) {
-            i = lower_bound;  // Przycinanie w dół
-        } else if (i > upper_bound) {
-            i = upper_bound;  // Przycinanie w górę
+        if (i < min_value) {
+            i = min_value;  // Przycinanie w dół
+        } else if (i > max_value) {
+            i = max_value;  // Przycinanie w górę
         }
     }
     return x_prim;
@@ -56,7 +53,7 @@ std::vector<double> neighborhood_operator(double m, std::vector<double> x) {
 
 // Specify for binary representation
 template<>
-int neighborhood_operator(double m, int x) {
+int neighborhood_operator(double m, int x, double min_value, double max_value) {
     int neighbor = x;
     int total_bits = BITS_PER_DIMENSION * DIMENSIONS;
     std::random_device rd;
@@ -120,6 +117,48 @@ double evaluation_function_1(const std::vector<double>& x) {
     return result;
 }
 
+// //template for evaluation function 2
+// template <typename T>
+// double evaluation_function_2(const std::vector<T>& x) {
+//     throw std::invalid_argument("Unsupported type for evaluation function 1");
+// }
+//
+// double evaluation_function_2(int x) {
+//     double sum_x = 0.0;
+//     for (int i = 0; i < DIMENSIONS; ++i)
+//     {
+//         int binary_segment = (x >> (BITS_PER_DIMENSION * (x - 1 - i))) & ((1 << BITS_PER_DIMENSION) - 1);
+//         double mapped_value = mapping_value(binary_segment, -3,3);
+//         sum_x += mapped_value;
+//     }
+//
+//     // Evaluation function
+//     double expr1 = -5.0 / (1.0 + sum_x);
+//     double exponent = exp(expr1);
+//     double cot_expr = 1.0 / tan(exponent);  // cotangent = 1 / tan(x)
+//     double result = expr1 + sin(cot_expr);
+//     return result;
+// }
+//
+// template <>
+// double evaluation_function_2(const std::vector<double>& x) {
+//     int n = x.size();
+//     double sum_x = 0.0;
+//
+//     // Sum of x_1, x_2, ..., x_n
+//     for (int i = 0; i < n; ++i) {
+//         sum_x += static_cast<double>(x[i]);
+//     }
+//
+//     // Evaluation function
+//     double expr1 = -5.0 / (1.0 + sum_x);
+//     double exponent = exp(expr1);
+//     double cot_expr = 1.0 / tan(exponent);  // cotangent = 1 / tan(x)
+//     double result = expr1 + sin(cot_expr);
+//
+//     return result;
+// }
+
 
 template<typename T>
 std::pair<double, std::vector<double>> simulated_annealing(T x, double m, int evaluation_function, double T0, double TN ) {
@@ -128,13 +167,24 @@ std::pair<double, std::vector<double>> simulated_annealing(T x, double m, int ev
     double evaluation_value_x = 0;
     double evaluation_value_x_prime = 0;
     std::vector<double> evaluation_values;
+    double min_value = 0;
+    double max_value = 0;
+    if(evaluation_function == 1)
+    {
+        min_value = -3;
+        max_value = 3;
+    }
+    else if(evaluation_function == 2)
+    {
+        min_value = -32.768;
+        max_value = 32.768;
+    }
     for(int k = 0; k < N; ++k)
     {
         for(int l = 0; l < L_k; ++l)
         {
             //select random neighbor
-            T x_prime = neighborhood_operator(m, x);
-
+            T x_prime = neighborhood_operator(m, x, min_value, max_value);
             //calculate evaluation function 1 or 2
             if(evaluation_function == 1){
                 evaluation_value_x = evaluation_function_1(x);

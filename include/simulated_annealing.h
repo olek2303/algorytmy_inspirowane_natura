@@ -9,7 +9,7 @@
 
 double random_uniform();
 template<typename T>
-T neighborhood_operator(double m, T x);
+T neighborhood_operator(double m, T x, double min_value, double max_value);
 double mapping_value(int decimal, double min_value, double max_value);
 template <typename T>
 double evaluation_function_1(const std::vector<T>& x);
