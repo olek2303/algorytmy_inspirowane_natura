@@ -42,7 +42,7 @@ void exercise_local_search() {
 }
 
 void exercise_simulated_annealing() {
-    auto binary_fun_1 = excercise3(1, "bianry");
+    auto binary_fun_1 = excercise3(1, "double");
 
     for (const auto& series : binary_fun_1) {
         for (size_t i = 0; i < series.size(); ++i) {

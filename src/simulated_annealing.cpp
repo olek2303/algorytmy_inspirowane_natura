@@ -12,16 +12,15 @@
 // Constants
 
 const int BITS_PER_DIMENSION = 16;
-const int MAX_ITER_EXPERIMENT = 1;
+const int MAX_ITER_EXPERIMENT = 3;
 const int DIMENSIONS = 10;
-const int N = 10; //N*L_k = 10000
-const int L_k = 10;
-const double COOLING_FACTOR = 0.98;
+const int N = 100; //N*L_k = 10000
+const int L_k = 100;
 
+std::random_device rd;
+std::mt19937 gen(rd());
 double random_uniform()
 {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
     std::uniform_real_distribution<> dis(0.0, 1.0);
     return dis(gen);
 }
@@ -33,16 +32,27 @@ T neighborhood_operator(double m, T x) {
 }
 
 // specify for double
+
 template<>
 std::vector<double> neighborhood_operator(double m, std::vector<double> x) {
     std::vector<double> x_prim = x;
     std::mt19937 rng(std::random_device{}());
-    std::uniform_real_distribution<double> dist(0, 1);
+    std::uniform_real_distribution<double> dist(-1, 0);
+    double lower_bound = -3.0;  // Zakres dziedziny (dla przykładu)
+    double upper_bound = 3.0;   // Zakres dziedziny (dla przykładu)
+
     for (double &i : x_prim) {
-        i += dist(rng);
+        i += dist(rng);  // Dodaj losową liczbę
+        std::cout << "i: " << i << std::endl;
+        if (i < lower_bound) {
+            i = lower_bound;  // Przycinanie w dół
+        } else if (i > upper_bound) {
+            i = upper_bound;  // Przycinanie w górę
+        }
     }
     return x_prim;
 }
+
 
 // Specify for binary representation
 template<>
@@ -63,7 +73,7 @@ int neighborhood_operator(double m, int x) {
     return neighbor;
 }
 
-double mapping_value(int decimal, int min_value, int max_value) {
+double mapping_value(int decimal, double min_value, double max_value) {
     int max_decimal = (1 << BITS_PER_DIMENSION) - 1;
     return min_value + (max_value - min_value) * decimal / max_decimal;
 }
@@ -112,7 +122,7 @@ double evaluation_function_1(const std::vector<double>& x) {
 
 
 template<typename T>
-std::pair<double, std::vector<double>> simulated_annealing(T x, double m, int evaluation_function, double T0 ) {
+std::pair<double, std::vector<double>> simulated_annealing(T x, double m, int evaluation_function, double T0, double TN ) {
     double T_k = T0;
     double best_value = DBL_MAX;
     double evaluation_value_x = 0;
@@ -155,29 +165,24 @@ std::pair<double, std::vector<double>> simulated_annealing(T x, double m, int ev
                 }
             }
         }
-        T_k *= COOLING_FACTOR;
+        //from lecture #3, example c
+        double a = (T0 - TN) * (N + 1) / N;
+        T_k = a/(k+1) + T0 - a;
     }
+    std::cout << "Final tepmerature: " << T_k << std::endl;
     return {best_value, evaluation_values};
 }
 
-std::vector<std::vector<double>> excercise3(int evalutaion_function, std::string numbers_representation) {
-    //initial temperature
-    double T0 = 100.0;
-    //mutation probability
-    double m = 4;
+template<typename T>
+std::vector<std::vector<double>> run_simulation(double T0, double TN, double m, T starting_point, int evalutaion_function)
+{
     std::vector<std::vector<double>> all_evaluation_series;
     std::vector<long> execution_times;
-    int starting_point =  (1 << (BITS_PER_DIMENSION * DIMENSIONS)) - 1;
-    //binary representation
-    if(numbers_representation == "binary")
-    {
-        //starting_point = (1 << (BITS_PER_DIMENSION * DIMENSIONS)) - 1;
-    }
 
     for (int i = 0; i < MAX_ITER_EXPERIMENT; ++i) {
         //start time
         auto start_time = std::chrono::high_resolution_clock::now();
-        auto [best_value, evaluation_values] = simulated_annealing(starting_point, m, evalutaion_function, T0);
+        auto [best_value, evaluation_values] = simulated_annealing(starting_point, m, evalutaion_function, T0, TN);
         //end time
         auto end_time = std::chrono::high_resolution_clock::now();
         long execution_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
@@ -186,6 +191,36 @@ std::vector<std::vector<double>> excercise3(int evalutaion_function, std::string
         std::cout << "Execution time of experiment: " << i << " is: " << execution_time << " ms" << std::endl;
         std::cout << "Best value of experiment: " << i << " is: " << best_value << std::endl;
     }
+    return all_evaluation_series;
+}
+
+std::vector<std::vector<double>> excercise3(int evalutaion_function, std::string numbers_representation) {
+    //initial temperature
+    double T0 = 100.0;
+    double TN = 1.0;
+    //mutation probability
+    double m = 4;
+    double max_value = 0;
+    std::vector<std::vector<double>> all_evaluation_series;
+
+    //binary representation
+    if(numbers_representation == "binary")
+    {
+        int starting_point = (1 << (BITS_PER_DIMENSION * DIMENSIONS)) - 1;
+        all_evaluation_series = run_simulation(T0, TN, m, starting_point, evalutaion_function);
+    }
+    else if (numbers_representation == "double")
+    {
+        if(evalutaion_function == 1)
+            max_value = 3;
+        else if(evalutaion_function == 2)
+            max_value = 32.768;
+
+        std::vector<double> starting_point = std::vector<double>(DIMENSIONS,max_value);
+        all_evaluation_series = run_simulation(T0, TN, m, starting_point, evalutaion_function);
+    }
+
+
     // std::string file_name = "execution_times_" + std::to_string(dimensions) + ".csv";
     // save_execution_times_to_csv(execution_times, file_name);
 
