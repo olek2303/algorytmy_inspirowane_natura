@@ -1,5 +1,5 @@
 #include "local_search.h"
-#include <iostream>
+#include "functions.h"
 #include <vector>
 #include <fstream>
 #include <random>
@@ -85,38 +85,4 @@ std::vector<std::vector<double>> excercise2(int dimensions) {
     std::string file_name = "execution_times_" + std::to_string(dimensions) + ".csv";
     save_execution_times_to_csv(execution_times, file_name);
     return all_evaluation_series;
-}
-
-void save_to_csv(const std::vector<std::vector<double>>& data, const std::string& filename) {
-    std::cout << "Saving to file: " << filename << std::endl;
-    std::ofstream file(filename);
-    if (!file.is_open()) {
-        std::cerr << "Failed to open file: " << filename << std::endl;
-        return;
-    }
-    for (const auto& series : data) {
-        for (size_t i = 0; i < series.size(); ++i) {
-            file << series[i];
-            if (i < series.size() - 1) {
-                file << ";";
-            }
-        }
-        file << "\n";
-    }
-    file.close();
-    std::cout << "File saved: " << filename << std::endl;
-}
-
-void save_execution_times_to_csv(const std::vector<long>& execution_times, const std::string& filename) {
-    std::cout << "Saving execution times to file: " << filename << std::endl;
-    std::ofstream file(filename);
-    if (!file.is_open()) {
-        std::cerr << "Failed to open file: " << filename << std::endl;
-        return;
-    }
-    for (const auto& time : execution_times) {
-        file << time << "\n";
-    }
-    file.close();
-    std::cout << "File saved: " << filename << std::endl;
 }

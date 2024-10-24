@@ -12,4 +12,6 @@ add_executable(MyProject
         src/local_search.cpp
         src/simulated_annealing.cpp
         include/simulated_annealing.h
+        include/functions.h
+        src/functions.cpp
 )

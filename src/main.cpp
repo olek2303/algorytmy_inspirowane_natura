@@ -2,6 +2,7 @@
 #include "../include/circle.h"
 #include "../include/local_search.h"
 #include "../include/simulated_annealing.h"
+#include "../include/functions.h"
 #include <iostream>
 #include <fstream>
 
@@ -35,24 +36,22 @@ void exercise_local_search() {
     auto n3_data = excercise2(N_3);
     std::cout << "N3 done\n";
 
-    save_to_csv(n1_data, "n1_data.csv");
-    save_to_csv(n2_data, "n2_data.csv");
-    save_to_csv(n3_data, "n3_data.csv");
+    save_series_to_csv(n1_data, "n1_data.csv");
+    save_series_to_csv(n2_data, "n2_data.csv");
+    save_series_to_csv(n3_data, "n3_data.csv");
 
 }
 
 void exercise_simulated_annealing() {
-    auto binary_fun_1 = excercise3(1, "double");
+    auto binary_fun_1 = exercise3(1, "binary");
+    auto binary_fun_2 = exercise3(2, "binary");
+    auto double_fun_1 = exercise3(1, "double");
+    auto double_fun_2 = exercise3(2, "double");
 
-    for (const auto& series : binary_fun_1) {
-        for (size_t i = 0; i < series.size(); ++i) {
-            std::cout << series[i];
-            if (i < series.size() - 1) {
-                std::cout << ";";
-            }
-        }
-        std::cout << "\n";
-    }
+    save_series_to_csv(binary_fun_1, "binary_fun_1.csv");
+    save_series_to_csv(binary_fun_2, "binary_fun_2.csv");
+    save_series_to_csv(double_fun_1, "double_fun_1.csv");
+    save_series_to_csv(double_fun_2, "double_fun_2.csv");
 }
 
 int main() {
@@ -60,7 +59,5 @@ int main() {
 
     //exercise_local_search();
     exercise_simulated_annealing();
-    //Sprawdziłem działanie dla reprezentacji binarnej dla funkcji oceny 1. Sprawdziłem wyłącznie na małej liczbie eksperymentów.
-    //TODO finish implement of double version of evaluation fun 1, implement evaluation fun 2 for both representations, save results to csv, make excel file.
     return 0;
 }
