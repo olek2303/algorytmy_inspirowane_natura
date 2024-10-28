@@ -79,7 +79,7 @@ double evaluation_function_1(int x) {
     {
         int binary_segment = (x >> (BITS_PER_DIMENSION * (x - 1 - i))) & ((1 << BITS_PER_DIMENSION) - 1);
         double mapped_value = mapping_value(binary_segment, -3,3);
-        sum_x += mapped_value;
+        sum_x += mapped_value * mapped_value;
     }
 
     // Evaluation function
@@ -97,7 +97,7 @@ double evaluation_function_1(const std::vector<double>& x) {
 
     // Sum of x_1, x_2, ..., x_n
     for (int i = 0; i < n; ++i) {
-        sum_x += static_cast<double>(x[i]);
+        sum_x += static_cast<double>(x[i]) * static_cast<double>(x[i]);
     }
 
     // Evaluation function

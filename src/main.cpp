@@ -44,14 +44,14 @@ void exercise_local_search() {
 
 void exercise_simulated_annealing() {
     auto binary_fun_1 = exercise3(1, "binary");
-    auto binary_fun_2 = exercise3(2, "binary");
+    //auto binary_fun_2 = exercise3(2, "binary");
     auto double_fun_1 = exercise3(1, "double");
-    auto double_fun_2 = exercise3(2, "double");
+    //auto double_fun_2 = exercise3(2, "double");
 
     save_series_to_csv(binary_fun_1, "binary_fun_1.csv");
-    save_series_to_csv(binary_fun_2, "binary_fun_2.csv");
+    //save_series_to_csv(binary_fun_2, "binary_fun_2.csv");
     save_series_to_csv(double_fun_1, "double_fun_1.csv");
-    save_series_to_csv(double_fun_2, "double_fun_2.csv");
+    //save_series_to_csv(double_fun_2, "double_fun_2.csv");
 }
 
 int main() {
