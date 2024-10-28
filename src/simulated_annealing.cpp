@@ -198,24 +198,24 @@ std::tuple<double, T, std::vector<double>> simulated_annealing(T x, double m, in
             }
 
             //save the best value
-            if(fabs(evaluation_value_x_prime) < best_value)
+            if(evaluation_value_x_prime < best_value)
             {
                 best_value = evaluation_value_x_prime;
                 best_x = x_prime;
             }
-            if(fabs(evaluation_value_x) < best_value)
+            if(evaluation_value_x < best_value)
             {
                 best_value = evaluation_value_x;
                 best_x = x;
             }
 
             //compare evaluation values
-            if (fabs(evaluation_value_x_prime) <= fabs(evaluation_value_x))
+            if (evaluation_value_x_prime <= evaluation_value_x)
             {
                 evaluation_values.push_back(evaluation_value_x_prime);
                 x = x_prime;
             }else{
-                if( random_uniform() < exp((fabs(evaluation_value_x) - fabs(evaluation_value_x_prime)) / T_k)){
+                if( random_uniform() < exp((evaluation_value_x - evaluation_value_x_prime) / T_k)){
                     evaluation_values.push_back(evaluation_value_x_prime);
                     x = x_prime;
                 }else{
