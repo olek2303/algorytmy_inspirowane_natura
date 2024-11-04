@@ -24,7 +24,7 @@ std::vector<double> VectorPoint::neighborhood_operator_vector(const std::vector<
 
 int IntPoint::neighborhood_operator_int(double m, int x) {
     int neighbor = x;
-    int total_bits = BITS_PER_DIMENSION * dimensions;
+    int total_bits = bits_per_dimension * dimensions;
 
     for (int i = 0; i < total_bits; ++i) {
         std::vector<int> rand_int = generate_uniform_int_distribution(0, total_bits - 1, 1);
@@ -38,5 +38,11 @@ int IntPoint::neighborhood_operator_int(double m, int x) {
 
     return neighbor;
 }
+
+double IntPoint::mapping_value(int decimal, double min_value, double max_value) {
+    int max_decimal = (1 << bits_per_dimension) - 1;
+    return min_value + (max_value - min_value) * decimal / max_decimal;
+}
+
 
 

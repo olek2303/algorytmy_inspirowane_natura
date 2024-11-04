@@ -10,17 +10,31 @@
 class Point {
 public:
     int dimensions = 10;
+    Point() = default;
     virtual ~Point() = default;
 };
 
 class IntPoint : public Point {
-    int BITS_PER_DIMENSION = 16;
+    int bits_per_dimension = 16;
+    int coordinates;
 public:
+    IntPoint(int dimensions, int bits_per_dimension, int coordinates) : Point(), bits_per_dimension(bits_per_dimension), coordinates(coordinates) {this->dimensions = dimensions;};
+    explicit IntPoint(int coordinates) : Point(),coordinates(coordinates){};
+    ~IntPoint() override = default;
+
+    int GetPoint() const { return coordinates; }
     int neighborhood_operator_int(double m, int solution);
+    double mapping_value(int decimal, double min_value, double max_value);
 };
 
 class VectorPoint : public Point {
+    std::vector<double> coordinates;
 public:
+    VectorPoint(int dimensions, std::vector<double> coordinates) : Point(), coordinates(std::move(coordinates)) {this->dimensions = dimensions;};
+    explicit VectorPoint(std::vector<double> coordinates) : Point(), coordinates(std::move(coordinates)){};
+    ~VectorPoint() override = default;
+
+    std::vector<double> GetPoint() const { return coordinates; }
     std::vector<double> neighborhood_operator_vector(const std::vector<double>& m, const std::vector<double>& x, double min_value, double max_value);
 
 };
