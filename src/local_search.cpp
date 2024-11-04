@@ -4,10 +4,10 @@
 #include <fstream>
 #include <random>
 #include <filesystem>
-#include <algorithm>
+
 
 // Constants
-const int BITS_PER_DIMENSION = 16;
+
 const double MIN_VALUE = -10;
 const double MAX_VALUE = 10;
 const int MAX_ITER = 10000;
@@ -16,46 +16,27 @@ const int N_1 = 2;
 const int N_2 = 5;
 const int N_3 = 10;
 
-double mapping_value(int decimal, int bits_per_dimension) {
-    int max_decimal = (1 << bits_per_dimension) - 1;
-    return MIN_VALUE + (MAX_VALUE - MIN_VALUE) * decimal / max_decimal;
-}
 
-int neighborhood_operator(double m, int solution, int dimensions) {
-    int neighbor = solution;
-    int total_bits = BITS_PER_DIMENSION * dimensions;
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(0, total_bits - 1);
-    std::uniform_real_distribution<> dis_uniform(0, 1);
-
-    for (int i = 0; i < total_bits; ++i) {
-        int bit_to_flip = dis(gen);
-        if (dis_uniform(gen) < m / total_bits) {
-            neighbor ^= (1 << bit_to_flip);
-        }
-    }
-    return neighbor;
-}
-
-double evaluation_function(int dimensions, int solution) {
+double evaluation_function(IntPoint x) {
     double total_sum = 0;
-    for (int i = 0; i < dimensions; ++i) {
-        int binary_segment = (solution >> (BITS_PER_DIMENSION * (dimensions - 1 - i))) & ((1 << BITS_PER_DIMENSION) - 1);
-        double mapped_value = mapping_value(binary_segment, BITS_PER_DIMENSION);
+    for (int i = 0; i < x.dimensions; ++i) {
+        int binary_segment = (x.GetPoint() >> (x.GetBitsPerDim() * (x.dimensions - 1 - i))) & ((1 << x.GetBitsPerDim()) - 1);
+        double mapped_value = x.mapping_value(binary_segment, MIN_VALUE, MAX_VALUE);
         total_sum += mapped_value * mapped_value;
     }
     return total_sum;
 }
 
-std::pair<int, std::vector<double>> first_improvement_local_search(int x, double m, int dimensions) {
+std::vector<double> first_improvement_local_search(IntPoint x, double m) {
     int iteration = 0;
     std::vector<double> evaluation_values;
     while (iteration < MAX_ITER) {
         ++iteration;
-        int x_prime = neighborhood_operator(m, x, dimensions);
-        double evaluation_value_x = evaluation_function(dimensions, x);
-        double evaluation_value_x_prime = evaluation_function(dimensions, x_prime);
+        IntPoint x_prime = x;
+        x_prime.SetPoint(x.neighborhood_operator_int(m));
+
+        double evaluation_value_x = evaluation_function(x);
+        double evaluation_value_x_prime = evaluation_function(x_prime);
         if (evaluation_value_x_prime < evaluation_value_x) {
             evaluation_values.push_back(evaluation_value_x_prime);
             x = x_prime;
@@ -64,18 +45,22 @@ std::pair<int, std::vector<double>> first_improvement_local_search(int x, double
         evaluation_values.push_back(evaluation_value_x);
 
     }
-    return {x, evaluation_values};
+    return evaluation_values;
 }
 
-std::vector<std::vector<double>> excercise2(int dimensions) {
-    int starting_point = (1 << (BITS_PER_DIMENSION * dimensions)) - 1;
+std::vector<std::vector<double>> exercise2(int dimensions) {
+    int bits_per_dimension = 16;
+    int starting_point_coordinates = (1 << (bits_per_dimension * dimensions)) - 1;
+    IntPoint starting_point = IntPoint(dimensions, bits_per_dimension, starting_point_coordinates);
+    //permuation
     double m = 4;
+
     std::vector<std::vector<double>> all_evaluation_series;
     std::vector<long> execution_times;
     for (int i = 0; i < MAX_ITER_EXPERIMENT; ++i) {
         //start time
         auto start_time = std::chrono::high_resolution_clock::now();
-        auto [_, evaluation_values] = first_improvement_local_search(starting_point, m, dimensions);
+        auto evaluation_values = first_improvement_local_search(starting_point, m);
         //end time
         auto end_time = std::chrono::high_resolution_clock::now();
         long execution_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();

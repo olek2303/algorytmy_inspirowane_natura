@@ -22,8 +22,8 @@ std::vector<double> VectorPoint::neighborhood_operator_vector(const std::vector<
     return neighbor;
 }
 
-int IntPoint::neighborhood_operator_int(double m, int x) {
-    int neighbor = x;
+int IntPoint::neighborhood_operator_int(double m) {
+    int neighbor = this->coordinates;
     int total_bits = bits_per_dimension * dimensions;
 
     for (int i = 0; i < total_bits; ++i) {
@@ -42,6 +42,17 @@ int IntPoint::neighborhood_operator_int(double m, int x) {
 double IntPoint::mapping_value(int decimal, double min_value, double max_value) {
     int max_decimal = (1 << bits_per_dimension) - 1;
     return min_value + (max_value - min_value) * decimal / max_decimal;
+}
+
+IntPoint& IntPoint::operator=(const IntPoint& other) {
+    if (this == &other) {
+        return *this; // handle self assignment
+    }
+    Point::operator=(other); // copy base class part
+    this->bits_per_dimension = other.bits_per_dimension;
+    this->coordinates = other.coordinates;
+    this->dimensions = other.dimensions;
+    return *this;
 }
 
 

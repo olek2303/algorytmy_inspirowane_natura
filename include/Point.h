@@ -21,9 +21,12 @@ public:
     IntPoint(int dimensions, int bits_per_dimension, int coordinates) : Point(), bits_per_dimension(bits_per_dimension), coordinates(coordinates) {this->dimensions = dimensions;};
     explicit IntPoint(int coordinates) : Point(),coordinates(coordinates){};
     ~IntPoint() override = default;
+    IntPoint& operator=(const IntPoint& other);
 
+    void SetPoint(int coordinates) { this->coordinates = coordinates; }
     int GetPoint() const { return coordinates; }
-    int neighborhood_operator_int(double m, int solution);
+    int GetBitsPerDim() const { return bits_per_dimension; }
+    int neighborhood_operator_int(double m);
     double mapping_value(int decimal, double min_value, double max_value);
 };
 
