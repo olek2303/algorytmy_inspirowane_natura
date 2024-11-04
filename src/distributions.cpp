@@ -22,3 +22,15 @@ std::vector<double> generate_uniform_distribution(double low, double high, int s
     }
     return numbers;
 }
+
+std::vector<int> generate_uniform_int_distribution(double low, double high, int size) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> d(low, high);
+    std::vector<int> numbers(size);
+    for (int i = 0; i < size; ++i) {
+        numbers[i] = d(gen);
+    }
+    return numbers;
+}
+

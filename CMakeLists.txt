@@ -14,4 +14,5 @@ add_executable(MyProject
         include/simulated_annealing.h
         include/functions.h
         src/functions.cpp
+        src/Point.cpp
 )
