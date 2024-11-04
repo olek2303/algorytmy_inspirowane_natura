@@ -31,33 +31,34 @@ void exercise_1() {
 void exercise_local_search() {
     auto n1_data = exercise2(N_1);
     std::cout << "N1 done\n";
-   // auto n2_data = excercise2(N_2);
+    auto n2_data = exercise2(N_2);
     std::cout << "N2 done\n";
-    //auto n3_data = excercise2(N_3);
+    auto n3_data = exercise2(N_3);
     std::cout << "N3 done\n";
 
     save_series_to_csv(n1_data, "n1_data.csv");
-    //save_series_to_csv(n2_data, "n2_data.csv");
-    //save_series_to_csv(n3_data, "n3_data.csv");
+    save_series_to_csv(n2_data, "n2_data.csv");
+    save_series_to_csv(n3_data, "n3_data.csv");
 
 }
 
 void exercise_simulated_annealing() {
     auto binary_fun_1 = exercise3(1, "binary");
-    //auto binary_fun_2 = exercise3(2, "binary");
+    auto binary_fun_2 = exercise3(2, "binary");
     auto double_fun_1 = exercise3(1, "double");
-    //auto double_fun_2 = exercise3(2, "double");
+    auto double_fun_2 = exercise3(2, "double");
 
     save_series_to_csv(binary_fun_1, "binary_fun_1.csv");
-    //save_series_to_csv(binary_fun_2, "binary_fun_2.csv");
+    save_series_to_csv(binary_fun_2, "binary_fun_2.csv");
     save_series_to_csv(double_fun_1, "double_fun_1.csv");
-    //save_series_to_csv(double_fun_2, "double_fun_2.csv");
+    save_series_to_csv(double_fun_2, "double_fun_2.csv");
 }
 
 int main() {
-//    exercise_1();
+    //exercise_1();
 
-    exercise_local_search();
-   // exercise_simulated_annealing();
+   // exercise_local_search();
+
+   //exercise_simulated_annealing();
     return 0;
 }

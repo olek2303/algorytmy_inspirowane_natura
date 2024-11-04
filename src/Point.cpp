@@ -9,8 +9,8 @@
 #include <memory>
 #include <random>
 
-std::vector<double> VectorPoint::neighborhood_operator_vector(const std::vector<double>& m, const std::vector<double>& x, double min_value, double max_value) {
-    std::vector<double> neighbor = x;
+std::vector<double> VectorPoint::neighborhood_operator_vector(double m, double min_value, double max_value) {
+    std::vector<double> neighbor = this->coordinates;
     std::mt19937 rng(std::random_device{}());
     std::normal_distribution<double> dist(0.0, 1);
     for (double &i : neighbor) {

@@ -37,8 +37,9 @@ public:
     explicit VectorPoint(std::vector<double> coordinates) : Point(), coordinates(std::move(coordinates)){};
     ~VectorPoint() override = default;
 
+    void SetPoint(std::vector<double> coordinates) { this->coordinates = coordinates; }
     std::vector<double> GetPoint() const { return coordinates; }
-    std::vector<double> neighborhood_operator_vector(const std::vector<double>& m, const std::vector<double>& x, double min_value, double max_value);
+    std::vector<double> neighborhood_operator_vector(double m, double min_value, double max_value);
 
 };
 
