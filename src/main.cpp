@@ -3,6 +3,7 @@
 #include "../include/local_search.h"
 #include "../include/simulated_annealing.h"
 #include "../include/functions.h"
+#include "../include/evolutionary_algorithm.h"
 #include <iostream>
 #include <fstream>
 
@@ -54,11 +55,24 @@ void exercise_simulated_annealing() {
     save_series_to_csv(double_fun_2, "double_fun_2.csv");
 }
 
+void exercise_evolutionary_algorithm() {
+    auto binary_fun_1 = exercise4(1, "double");
+    //auto binary_fun_2 = exercise4(2, "binary");
+    //auto double_fun_1 = exercise4(1, "double");
+    //auto double_fun_2 = exercise4(2, "double");
+
+   // save_series_to_csv(binary_fun_1, "binary_fun_1.csv");
+   // save_series_to_csv(binary_fun_2, "binary_fun_2.csv");
+    //save_series_to_csv(double_fun_1, "double_fun_1.csv");
+    //save_series_to_csv(double_fun_2, "double_fun_2.csv");
+}
+
 int main() {
     //exercise_1();
 
    // exercise_local_search();
 
    //exercise_simulated_annealing();
+    exercise_evolutionary_algorithm();
     return 0;
 }
