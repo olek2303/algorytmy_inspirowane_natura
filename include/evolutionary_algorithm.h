@@ -7,7 +7,7 @@
 #include <string>
 
 template <typename T>
-double getFitness(const T& point);
+double getFitness(T point);
 template<typename T>
 T rouletteWheelSelection(const std::vector<T>& population);
 

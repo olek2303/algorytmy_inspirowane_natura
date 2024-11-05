@@ -8,6 +8,7 @@
 #include <vector>
 #include <random>
 #include <functions.h>
+#include <numeric>
 
 // Constants
 const int BITS_PER_DIMENSION = 16;
@@ -16,13 +17,15 @@ const int DIMENSIONS = 10;
 const int MAX_ITER = 10000;
 
 template <typename T>
-double getFitness(const T& point) {
+double getFitness(T point) {
     if constexpr (std::is_same_v<T, IntPoint>) {
         // For IntPoint, use the integer coordinates as fitness
         return static_cast<double>(point.GetPoint());
     } else if constexpr (std::is_same_v<T, VectorPoint>) {
         // For VectorPoint, use the sum of coordinates as fitness
-        return std::accumulate(point.GetPoint().begin(), point.GetPoint().end(), 0.0);
+        std::vector<double> coordinates = point.GetPoint();
+        double sum = std::accumulate(coordinates.begin(), coordinates.end(), 0.0);
+        return sum;
     } else {
         static_assert("Unsupported type for getFitness.");
         return 0.0;
@@ -65,22 +68,44 @@ T rouletteWheelSelection(const std::vector<T>& population) {
     return population.back(); // Fallback in case rounding errors occur
 }
 
+// TO TRZEBA NAPISAĆ LEPEIEJ NIŻ COPILOT TO ZROBIŁ XD
+// Intermediate recombination function
+// template<typename T>
+// T intermediateRecombination(const T& parent1, const T& parent2, double alpha = 0.5) {
+//     T offspring(parent1.size());
+//     for (size_t i = 0; i < parent1.size(); ++i) {
+//         offspring[i] = alpha * parent1[i] + (1 - alpha) * parent2[i];
+//     }
+//     return offspring;
+// }
+
 template<typename T>
-std::tuple<double, T, std::vector<double>> evolutionary_algorithm_real_valued(T x, double m, int evaluation_function) {
+std::tuple<double, T, std::vector<double>> evolutionary_algorithm_real_valued(std::vector<T> x, double m, int evaluation_function) {
 
     //P - inital population
-    T p = x;
-    std::cout << x[0].GetPoint() << std::endl;
+    std::vector<T> p = x;
+
     //TODO: implement evolutionary algorithm
     //evaluation(P)
     //REPEAT
-    auto p_prime = rouletteWheelSelection(p);
+
+    //selection(P)
+
+    std::vector<T> p_prime = std::vector<T>(p.size());
+    for (int i = 0; i < p.size(); ++i) {
+
+        //T parent_1 = rouletteWheelSelection(p);
+        //T parent_2 = rouletteWheelSelection(p);
+        //T offspring = intermediateRecombination(parent_1, parent_2);
+        //p_prime.push_back(offspring);
+    }
+
       //P_prime = recombination(selection(P))
       //P_prime_prime = mutation(P_prime)
       //evaluation(P_prime_prime)
       //P = replacement(P, P_prime_prime)
 
-    return {0, p, std::vector<double>()};
+    return {0, p[0], std::vector<double>()};
 }
 
 template<typename T>
@@ -100,7 +125,7 @@ std::vector<std::vector<double>> run_simulation(double m, T population, int eval
         all_evaluation_series.push_back(evaluation_values);
         execution_times.push_back({execution_time});
         best_values.push_back(best_value);
-        best_xs.push_back(best_x);
+        //best_xs.push_back(best_x);
     }
     //save_execution_times_to_csv(execution_times, "execution_times_evolutionary_fun_" + std::to_string(evalutaion_function) + "_" + numbers_representation + ".csv");
     //save_best_values_to_csv(best_values, "best_values_evolutionary_fun_" + std::to_string(evalutaion_function) + "_" + numbers_representation + ".csv");

@@ -24,6 +24,7 @@ public:
     ~IntPoint() override = default;
     IntPoint& operator=(const IntPoint& other);
 
+
     void SetPoint(int coordinates) { this->coordinates = coordinates; }
     int GetPoint() const { return coordinates; }
     int GetBitsPerDim() const { return bits_per_dimension; }
@@ -38,6 +39,7 @@ public:
     VectorPoint(int dimensions, std::vector<double> coordinates) : Point(), coordinates(std::move(coordinates)) {this->dimensions = dimensions;};
     explicit VectorPoint(std::vector<double> coordinates) : Point(), coordinates(std::move(coordinates)){};
     ~VectorPoint() override = default;
+
 
     void SetPoint(std::vector<double> coordinates) { this->coordinates = coordinates; }
     std::vector<double> GetPoint() const { return coordinates; }
