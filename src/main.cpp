@@ -56,13 +56,13 @@ void exercise_simulated_annealing() {
 }
 
 void exercise_evolutionary_algorithm() {
-    auto binary_fun_1 = exercise4(1, "double");
-    //auto binary_fun_2 = exercise4(2, "binary");
+    auto binary_fun_1 = exercise4(1, "binary");
+    auto binary_fun_2 = exercise4(2, "binary");
     //auto double_fun_1 = exercise4(1, "double");
     //auto double_fun_2 = exercise4(2, "double");
 
-   // save_series_to_csv(binary_fun_1, "binary_fun_1.csv");
-   // save_series_to_csv(binary_fun_2, "binary_fun_2.csv");
+    save_series_to_csv(binary_fun_1, "binary_fun_1.csv");
+    save_series_to_csv(binary_fun_2, "binary_fun_2.csv");
     //save_series_to_csv(double_fun_1, "double_fun_1.csv");
     //save_series_to_csv(double_fun_2, "double_fun_2.csv");
 }

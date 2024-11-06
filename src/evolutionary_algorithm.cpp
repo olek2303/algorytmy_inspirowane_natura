@@ -12,7 +12,7 @@
 
 // Constants
 const int BITS_PER_DIMENSION = 16;
-const int MAX_ITER_EXPERIMENT = 1;
+const int MAX_ITER_EXPERIMENT = 10;
 const int DIMENSIONS = 10;
 const int MAX_ITER = 10000;
 
@@ -68,72 +68,108 @@ T rouletteWheelSelection(const std::vector<T>& population) {
     return population.back(); // Fallback in case rounding errors occur
 }
 
-// TO TRZEBA NAPISAĆ LEPEIEJ NIŻ COPILOT TO ZROBIŁ XD
-// Intermediate recombination function
-// template<typename T>
-// T intermediateRecombination(const T& parent1, const T& parent2, double alpha = 0.5) {
-//     T offspring(parent1.size());
-//     for (size_t i = 0; i < parent1.size(); ++i) {
-//         offspring[i] = alpha * parent1[i] + (1 - alpha) * parent2[i];
-//     }
-//     return offspring;
-// }
+// Specialized crossover function for IntPoint
+std::vector<IntPoint> crossover(const IntPoint& p1, const IntPoint& p2, double r_cross=0.5) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis(0.0, 1.0);
+    std::uniform_int_distribution<> dis_int(1, p1.GetBitsPerDim() * p1.dimensions - 2);
+
+    IntPoint c1 = p1;
+    IntPoint c2 = p2;
+
+    if (dis(gen) < r_cross) {
+        int pt = dis_int(gen);
+
+        int mask = (1 << pt) - 1;
+        int new_c1 = (p1.GetPoint() & mask) | (p2.GetPoint() & ~mask);
+        int new_c2 = (p2.GetPoint() & mask) | (p1.GetPoint() & ~mask);
+
+        c1.SetPoint(new_c1);
+        c2.SetPoint(new_c2);
+    }
+
+    return {c1, c2};
+}
+
+// Specialized crossover function for VectorPoint
+std::vector<VectorPoint> crossover(const VectorPoint& p1, const VectorPoint& p2, double r_cross=0.5) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis(0.0, 1.0);
+    std::uniform_int_distribution<> dis_int(1, p1.GetPoint().size() - 2);
+
+    VectorPoint c1 = p1;
+    VectorPoint c2 = p2;
+
+    if (dis(gen) < r_cross) {
+        int pt = dis_int(gen);
+
+        for (int i = pt; i < p1.GetPoint().size(); ++i) {
+            c1.GetPoint()[i] = p2.GetPoint()[i];
+            c2.GetPoint()[i] = p1.GetPoint()[i];
+        }
+    }
+
+    return {c1, c2};
+}
 
 template<typename T>
 std::tuple<double, T, std::vector<double>> evolutionary_algorithm_real_valued(std::vector<T> x, double m, int evaluation_function) {
-
-    //P - inital population
     std::vector<T> p = x;
+    std::vector<double> evaluation_values;
 
-    //TODO: implement evolutionary algorithm
-    //evaluation(P)
-    //REPEAT
+    for (int iter = 0; iter < MAX_ITER; ++iter) {
+        std::vector<T> p_prime;
+        p_prime.reserve(p.size()); // Reserve space to avoid reallocations
 
-    //selection(P)
+        for (int i = 0; i < p.size() / 2; ++i) {
+            T parent_1 = rouletteWheelSelection(p);
+            T parent_2 = rouletteWheelSelection(p);
+            auto offspring = crossover(parent_1, parent_2, m);
+            p_prime.push_back(offspring[0]);
+            p_prime.push_back(offspring[1]);
+        }
 
-    std::vector<T> p_prime = std::vector<T>(p.size());
-    for (int i = 0; i < p.size(); ++i) {
+        // Ensure p_prime has the same size as p
+        if (p_prime.size() > p.size()) {
+            p_prime.resize(p.size());
+        }
 
-        //T parent_1 = rouletteWheelSelection(p);
-        //T parent_2 = rouletteWheelSelection(p);
-        //T offspring = intermediateRecombination(parent_1, parent_2);
-        //p_prime.push_back(offspring);
+        // Mutation and evaluation logic should be added here
+
+        p = p_prime;
     }
 
-      //P_prime = recombination(selection(P))
-      //P_prime_prime = mutation(P_prime)
-      //evaluation(P_prime_prime)
-      //P = replacement(P, P_prime_prime)
-
-    return {0, p[0], std::vector<double>()};
+    double best_value = getFitness(p[0]);
+    T best_x = p[0];
+    return {best_value, best_x, evaluation_values};
 }
 
 template<typename T>
-std::vector<std::vector<double>> run_simulation(double m, T population, int evalutaion_function, std::string numbers_representation)
-{
+std::vector<std::vector<double>> run_simulation(double m, std::vector<T> population, int evaluation_function, std::string numbers_representation) {
     std::vector<std::vector<double>> all_evaluation_series;
     std::vector<long> execution_times;
     std::vector<double> best_values;
-    std::vector<T> best_xs;
+    std::vector<T> best_xs; // Ensure best_xs is a vector of type T
     for (int i = 0; i < MAX_ITER_EXPERIMENT; ++i) {
-        //start time
+        std::cout << "start iter:  " << i << std::endl;
         auto start_time = std::chrono::high_resolution_clock::now();
-        auto [best_value, best_x, evaluation_values] = evolutionary_algorithm_real_valued(population, m, evalutaion_function);
-        //end time
+        auto [best_value, best_x, evaluation_values] = evolutionary_algorithm_real_valued(population, m, evaluation_function);
         auto end_time = std::chrono::high_resolution_clock::now();
+        std::cout << "clock: " << std::endl;
         long execution_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
         all_evaluation_series.push_back(evaluation_values);
-        execution_times.push_back({execution_time});
+        execution_times.push_back(execution_time);
         best_values.push_back(best_value);
-        //best_xs.push_back(best_x);
+        best_xs.push_back(best_x); // This should now work correctly
+        std::cout << "Best value:";
+        std::cout << best_value << std::endl;
     }
-    //save_execution_times_to_csv(execution_times, "execution_times_evolutionary_fun_" + std::to_string(evalutaion_function) + "_" + numbers_representation + ".csv");
-    //save_best_values_to_csv(best_values, "best_values_evolutionary_fun_" + std::to_string(evalutaion_function) + "_" + numbers_representation + ".csv");
     return all_evaluation_series;
 }
 
-std::vector<std::vector<double>> exercise4(int evalutaion_function, std::string numbers_representation) {
-
+std::vector<std::vector<double>> exercise4(int evaluation_function, std::string numbers_representation) {
     //mutation probability
     int size_of_population = 10;
     double m = 4;
@@ -141,18 +177,17 @@ std::vector<std::vector<double>> exercise4(int evalutaion_function, std::string 
     double min_value = 0;
     std::vector<std::vector<double>> all_evaluation_series;
 
-    if(evalutaion_function == 1) {
+    if(evaluation_function == 1) {
         min_value = -3;
         max_value = 3;
     }
-    else if(evalutaion_function == 2) {
+    else if(evaluation_function == 2) {
         min_value = -32.768;
         max_value = 32.768;
     }
 
     //binary representation
-    if(numbers_representation == "binary")
-    {
+    if(numbers_representation == "binary") {
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> dis(0, 1);
@@ -168,10 +203,9 @@ std::vector<std::vector<double>> exercise4(int evalutaion_function, std::string 
             population[j] = IntPoint(DIMENSIONS, BITS_PER_DIMENSION, point_coordinates);
         }
 
-        all_evaluation_series = run_simulation(m, population, evalutaion_function, numbers_representation);
+        all_evaluation_series = run_simulation(m, population, evaluation_function, numbers_representation);
     }
-    else if (numbers_representation == "double")
-    {
+    else if (numbers_representation == "double") {
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_real_distribution<> dis(min_value, max_value);
@@ -187,7 +221,7 @@ std::vector<std::vector<double>> exercise4(int evalutaion_function, std::string 
             population[j] = VectorPoint(DIMENSIONS, point_coordinates);
         }
 
-        all_evaluation_series = run_simulation(m, population, evalutaion_function, numbers_representation);
+        all_evaluation_series = run_simulation(m, population, evaluation_function, numbers_representation);
     }
 
     return all_evaluation_series;
