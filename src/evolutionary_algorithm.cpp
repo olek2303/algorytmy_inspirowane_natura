@@ -115,6 +115,53 @@ std::vector<VectorPoint> crossover(const VectorPoint& p1, const VectorPoint& p2,
 }
 
 template<typename T>
+T tournamentSelection(const std::vector<T>& population, int tournament_size = 3) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, population.size() - 1);
+
+    // Select `tournament_size` random individuals
+    T best_individual = population[dis(gen)];
+    double best_fitness = getFitness(best_individual);
+
+    for (int i = 1; i < tournament_size; ++i) {
+        T candidate = population[dis(gen)];
+        double candidate_fitness = getFitness(candidate);
+
+        // For a minimization problem, select the individual with the lower fitness
+        if (candidate_fitness < best_fitness) {
+            best_individual = candidate;
+            best_fitness = candidate_fitness;
+        }
+    }
+
+    return best_individual;
+}
+
+std::vector<IntPoint> maskCrossover(const IntPoint& p1, const IntPoint& p2, double r_cross = 0.7) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis(0.0, 1.0);
+    std::uniform_int_distribution<> dis_mask(0, (1 << (BITS_PER_DIMENSION * p1.dimensions)) - 1);
+
+    IntPoint c1 = p1;
+    IntPoint c2 = p2;
+
+    if (dis(gen) < r_cross) {
+        int mask = dis_mask(gen); // Random mask
+        int new_c1 = (p1.GetPoint() & mask) | (p2.GetPoint() & ~mask);
+        int new_c2 = (p2.GetPoint() & mask) | (p1.GetPoint() & ~mask);
+
+        c1.SetPoint(new_c1);
+        c2.SetPoint(new_c2);
+    }
+
+    return {c1, c2};
+}
+
+
+
+template<typename T>
 std::tuple<double, T, std::vector<double>> evolutionary_algorithm_real_valued(std::vector<T> x, double m, int evaluation_function) {
     std::vector<T> p = x;
     std::vector<double> evaluation_values;
@@ -124,8 +171,12 @@ std::tuple<double, T, std::vector<double>> evolutionary_algorithm_real_valued(st
         p_prime.reserve(p.size()); // Reserve space to avoid reallocations
 
         for (int i = 0; i < p.size() / 2; ++i) {
-            T parent_1 = rouletteWheelSelection(p);
-            T parent_2 = rouletteWheelSelection(p);
+            // T parent_1 = rouletteWheelSelection(p);
+            // T parent_2 = rouletteWheelSelection(p);
+
+            T parent_1 = tournamentSelection(p);
+            T parent_2 = tournamentSelection(p);
+
             auto offspring = crossover(parent_1, parent_2, m);
             p_prime.push_back(offspring[0]);
             p_prime.push_back(offspring[1]);
@@ -157,8 +208,9 @@ std::vector<std::vector<double>> run_simulation(double m, std::vector<T> populat
         auto start_time = std::chrono::high_resolution_clock::now();
         auto [best_value, best_x, evaluation_values] = evolutionary_algorithm_real_valued(population, m, evaluation_function);
         auto end_time = std::chrono::high_resolution_clock::now();
-        std::cout << "clock: " << std::endl;
+
         long execution_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+        std::cout << "clock: " << execution_time <<std::endl;
         all_evaluation_series.push_back(evaluation_values);
         execution_times.push_back(execution_time);
         best_values.push_back(best_value);
