@@ -6,6 +6,7 @@
 #include "../include/evolutionary_algorithm.h"
 #include <iostream>
 #include <fstream>
+#include "evolutionary_test_int.h"
 
 
 void exercise_1() {
@@ -73,6 +74,7 @@ int main() {
    // exercise_local_search();
 
    //exercise_simulated_annealing();
-    exercise_evolutionary_algorithm();
+    //exercise_evolutionary_algorithm();
+    runExperiments();
     return 0;
 }
