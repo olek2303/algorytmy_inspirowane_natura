@@ -12,9 +12,11 @@ template<typename T>
 T rouletteWheelSelection(const std::vector<T>& population);
 
 template<typename T>
-std::tuple<double, T, std::vector<double>> evolutionary_algorithm_real_valued(T x, double m, int evaluation_function);
+std::vector<T> initializePopulation(double min_value, double max_value);
 template<typename T>
-std::vector<std::vector<double>> run_simulation(double m, T population, int evalutaion_function, std::string numbers_representation);
+std::vector<double> evolutionary_algorithm_real_valued(double m, int evaluation_function, double min_value, double max_value);
+template<typename T>
+std::vector<std::vector<double>> run_simulation(double m, int evalutaion_function, std::string numbers_representation);
 std::vector<std::vector<double>> exercise4(int evalutaion_function, std::string numbers_representation);
 
 #endif //EVOLUTION_ALGORITHM_H
