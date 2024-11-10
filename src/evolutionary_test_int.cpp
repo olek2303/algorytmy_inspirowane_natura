@@ -1,9 +1,8 @@
-
 #include<chrono>
 #include<vector>
 #include<random>
 #include<iostream>
-#include"point.h"
+#include"Point.h"
 #include "evaluation_functions.h"
 
 const int BITS_PER_DIMENSION = 16;
@@ -15,6 +14,10 @@ const int GENERATIONS = 100;
 
 std::mt19937 rng(std::random_device{}());
 
+// Reprezentacja binarna i double
+// Operator sasiedztwa pokazany na slajdach
+
+// 1. Inicjalizacja populacji
 std::vector<IntPoint> initializePopulation() {
     std::vector<IntPoint> population(POP_SIZE);
     std::uniform_int_distribution<int> dist(0, 1);
@@ -28,6 +31,7 @@ std::vector<IntPoint> initializePopulation() {
     return population;
 }
 
+// 2. Algorytm selekcji z wykladu
 IntPoint tournamentSelection(const std::vector<IntPoint>& population) {
     std::uniform_int_distribution<int> dist(0, POP_SIZE - 1);
     int a = dist(rng);
@@ -35,33 +39,54 @@ IntPoint tournamentSelection(const std::vector<IntPoint>& population) {
     return (evaluation_function_1(population[a]) > evaluation_function_1(population[b])) ? population[a] : population[b];
 }
 
-// std::vector<int> crossover(const std::vector<int>& parent1, const std::vector<int>& parent2) {
-//     std::uniform_real_distribution<double> dist(0.0, 1.0);
-//     if (dist(rng) > CROSSOVER_RATE) return parent1;
-//
-//     std::vector<int> offspring(N);
-//     std::uniform_int_distribution<int> crossover_point_dist(0, 15); // Punkt krzyżowania na bitach
-//     int crossover_point = crossover_point_dist(rng);
-//
-//     for (int i = 0; i < N; ++i) {
-//         std::bitset<16> bits1(parent1[i]);
-//         std::bitset<16> bits2(parent2[i]);
-//
-//         // Krzyżowanie w punkcie
-//         for (int j = 0; j < 16; ++j) {
-//             if (j > crossover_point) {
-//                 bool temp = bits1[j];
-//                 bits1[j] = bits2[j];
-//                 bits2[j] = temp;
-//
-//             }
-//         }
-//         offspring[i] = static_cast<int>(bits1.to_ulong());
-//     }
-//     return offspring;
-// }
+int fitness(const IntPoint& individual) {
+    int sum = 0;
+    int coordinates = individual.GetPoint();
+    int total_bits = individual.GetBitsPerDim() * individual.dimensions;
+    for (int i = 0; i < total_bits; ++i) {
+        sum += (coordinates >> i) & 1;
+    }
+    return sum;
+}
 
+// 3. Krzyzowanie jednopunktowe
+IntPoint crossover(const IntPoint& parent1, const IntPoint& parent2) {
+    std::uniform_real_distribution<double> dist(0.0, 1.0);
+    if (dist(rng) > 0.7) return parent1;
 
+    int total_bits = parent1.GetBitsPerDim() * parent1.dimensions;
+    std::uniform_int_distribution<int> crossover_point_dist(0, total_bits - 1);
+    int crossover_point = crossover_point_dist(rng);
+
+    int coordinates1 = parent1.GetPoint();
+    int coordinates2 = parent2.GetPoint();
+
+    for (int i = crossover_point; i < total_bits; ++i) {
+        bool bit1 = (coordinates1 >> i) & 1;
+        bool bit2 = (coordinates2 >> i) & 1;
+
+        if (bit1 != bit2) {
+            coordinates1 ^= (1 << i);
+            coordinates2 ^= (1 << i);
+        }
+    }
+
+    return IntPoint(parent1.dimensions, parent1.GetBitsPerDim(), coordinates1);
+}
+
+void mutate(IntPoint& individual) {
+    std::uniform_real_distribution<double> dist(0.0, 1.0);
+    int total_bits = individual.GetBitsPerDim() * individual.dimensions;
+    int coordinates = individual.GetPoint();
+    for (int i = 0; i < total_bits; ++i) {
+        if (dist(rng) < 0.5) {
+            coordinates ^= (1 << i);  // Flip the bit at position i
+        }
+    }
+    individual.SetPoint(coordinates);
+}
+
+// 4. Algorytm ewolucyjny z elementami sukcesji
 double evolutionaryAlgorithm() {
     auto population = initializePopulation();
     double best_fitness = 0;
@@ -77,15 +102,15 @@ double evolutionaryAlgorithm() {
 
             //TO TRZEBA PRZEROBIC
 
-            //auto offspring = crossover(parent1, parent2);
-           // mutate(offspring);
+            auto offspring = crossover(parent1, parent2);
+            mutate(offspring);
 
             // Ocena przystosowania i aktualizacja najlepszego wyniku
-            //int offspring_fitness = fitness(offspring);
+            int offspring_fitness = fitness(offspring);
             evaluations++;
-            //best_fitness = std::max(best_fitness, offspring_fitness);
+            // best_fitness = std::max(best_fitness, offspring_fitness);
             best_fitness = std::max(best_fitness, evaluation_function_1(parent1));
-            //new_population.push_back(offspring);
+            new_population.push_back(offspring);
             new_population.push_back(parent1);
             new_population.push_back(parent2);
         }
@@ -114,6 +139,7 @@ void runExperiments() {
     }
 
 }
+
 
 //KOD Z CZATU
 // #include <iostream>

@@ -74,7 +74,7 @@ int main() {
    // exercise_local_search();
 
    //exercise_simulated_annealing();
-    //exercise_evolutionary_algorithm();
-    runExperiments();
+    exercise_evolutionary_algorithm();
+    // runExperiments();
     return 0;
 }

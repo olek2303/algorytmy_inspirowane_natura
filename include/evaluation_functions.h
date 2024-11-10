@@ -73,4 +73,18 @@ double evaluation_function_2(T x) {
 
     return result;
 }
+
+// Function to select the appropriate evaluation function
+template <typename T>
+double evaluate(T x, int evaluation_function) {
+    if (evaluation_function == 1) {
+        return evaluation_function_1(x);
+    } else if (evaluation_function == 2) {
+        return evaluation_function_2(x);
+    } else {
+        std::cerr << "Invalid evaluation function" << std::endl;
+        return 0.0;
+    }
+}
+
 #endif //EVALUATION_FUNCTIONS_H

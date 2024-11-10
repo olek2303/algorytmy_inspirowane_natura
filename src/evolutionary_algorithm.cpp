@@ -12,7 +12,7 @@
 
 // Constants
 const int BITS_PER_DIMENSION = 16;
-const int MAX_ITER_EXPERIMENT = 10;
+const int MAX_ITER_EXPERIMENT = 100;
 const int DIMENSIONS = 10;
 const int MAX_ITER = 10000;
 
@@ -188,6 +188,12 @@ std::tuple<double, T, std::vector<double>> evolutionary_algorithm_real_valued(st
         }
 
         // Mutation and evaluation logic should be added here
+
+        // Evaluate the population
+        for (const auto& individual : p) {
+            double evaluation_value = evaluate(individual, evaluation_function);
+            evaluation_values.push_back(evaluation_value);
+        }
 
         p = p_prime;
     }
