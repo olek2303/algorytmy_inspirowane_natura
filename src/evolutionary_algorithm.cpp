@@ -16,7 +16,7 @@ const int BITS_PER_DIMENSION = 16;
 const int MAX_ITER_EXPERIMENT = 100;
 const int DIMENSIONS = 10;
 const int MAX_ITER = 10000;
-const int POP_SIZE = 5;
+const int POP_SIZE = 3;
 
 std::mt19937 rng(std::random_device{}());
 
@@ -83,9 +83,10 @@ std::vector<VectorPoint> crossover(const VectorPoint& p1, const VectorPoint& p2,
     if (dis(rng) < r_cross) {
         int pt = dis_int(rng);
 
+
         for (int i = pt; i < p1.GetPoint().size(); ++i) {
-            c1.GetPoint()[i] = p2.GetPoint()[i];
-            c2.GetPoint()[i] = p1.GetPoint()[i];
+            c1.SetPoint(i,p2.GetPoint()[i]);
+            c2.SetPoint(i, p1.GetPoint()[i]);
         }
     }
 
@@ -93,11 +94,21 @@ std::vector<VectorPoint> crossover(const VectorPoint& p1, const VectorPoint& p2,
 }
 
 template<typename T>
-T tournamentSelection(const std::vector<T>& population, int eval_function) {
+T tournamentSelection(const std::vector<T>& population, int eval_function, int tournament_size = 3) {
     std::uniform_int_distribution<int> dist(0, POP_SIZE - 1);
-    int a = dist(rng);
-    int b = dist(rng);
-    return (evaluate(population[a], eval_function) > evaluate(population[b], eval_function)) ? population[a] : population[b];
+    T best_individual = population[dist(rng)];
+    double best_fitness = evaluate(best_individual, eval_function);
+
+    for (int i = 1; i < tournament_size; ++i) {
+        T individual = population[dist(rng)];
+        double fitness = evaluate(individual, eval_function);
+        if (fitness < best_fitness) {
+            best_individual = individual;
+            best_fitness = fitness;
+        }
+    }
+
+    return best_individual;
 }
 
 template<typename T>
@@ -146,7 +157,7 @@ std::vector<double> evolutionary_algorithm_real_valued(double m, int evaluation_
             T parent_1 = tournamentSelection(population, evaluation_function);
             T parent_2 = tournamentSelection(population, evaluation_function);
 
-            auto offspring = crossover(parent_1, parent_2, m);
+            auto offspring = crossover(parent_1, parent_2);
 
             mutate(offspring[0], min_value, max_value);
             mutate(offspring[1], min_value, max_value);
@@ -201,6 +212,7 @@ std::vector<std::vector<double>> run_simulation(double m, int evaluation_functio
         std::cout << "clock: " << execution_time <<std::endl;
         execution_times.push_back(execution_time);
     }
+    save_execution_times_to_csv(execution_times, "execution_times_evolutionary_fun_" + std::to_string(evaluation_function) + "_" + numbers_representation + ".csv");
     return all_evaluation_series;
 }
 

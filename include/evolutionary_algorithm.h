@@ -5,14 +5,14 @@
 
 #include <vector>
 #include <string>
+#include "point.h"
 
-template <typename T>
-double getFitness(T point);
-template<typename T>
-T rouletteWheelSelection(const std::vector<T>& population);
 
 template<typename T>
 std::vector<T> initializePopulation(double min_value, double max_value);
+
+template<typename T>
+void mutate(T& individual, double min_value, double max_value);
 template<typename T>
 std::vector<double> evolutionary_algorithm_real_valued(double m, int evaluation_function, double min_value, double max_value);
 template<typename T>

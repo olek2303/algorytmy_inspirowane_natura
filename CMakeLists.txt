@@ -15,6 +15,4 @@ add_executable(MyProject
         src/Point.cpp
         src/evolutionary_algorithm.cpp
         src/evolutionary_algorithm.cpp
-        src/evolutionary_test_int.cpp
-        include/evolutionary_test_int.h
 )

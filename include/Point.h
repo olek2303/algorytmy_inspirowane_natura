@@ -42,6 +42,7 @@ public:
 
 
     void SetPoint(std::vector<double> coordinates) { this->coordinates = coordinates; }
+    void SetPoint(int index, double value) { this->coordinates[index] = value; }
     std::vector<double> GetPoint() const { return coordinates; }
     std::vector<double> neighborhood_operator_vector(double m, double min_value, double max_value);
 
