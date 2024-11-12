@@ -16,7 +16,7 @@ const int BITS_PER_DIMENSION = 16;
 const int MAX_ITER_EXPERIMENT = 100;
 const int DIMENSIONS = 10;
 const int MAX_ITER = 10000;
-const int POP_SIZE = 3;
+const int POP_SIZE = 10;
 
 std::mt19937 rng(std::random_device{}());
 
@@ -43,7 +43,7 @@ std::vector<T> initializePopulation(double min_value, double max_value) {
             individual.SetPoint(point_coordinates);
         }
     } else {
-        static_assert("Unsupported type for getFitness.");
+        static_assert("Unsupported type for initializePopulation.");
         return 0.0;
     }
 
@@ -75,6 +75,7 @@ std::vector<IntPoint> crossover(const IntPoint& p1, const IntPoint& p2, double r
 // Specialized crossover function for VectorPoint
 std::vector<VectorPoint> crossover(const VectorPoint& p1, const VectorPoint& p2, double r_cross=0.5) {
     std::uniform_real_distribution<> dis(0.0, 1.0);
+    // std::normal_distribution<> normal_dis(0.0, 1.0);
     std::uniform_int_distribution<> dis_int(1, p1.GetPoint().size() - 2);
 
     VectorPoint c1 = p1;
@@ -88,13 +89,29 @@ std::vector<VectorPoint> crossover(const VectorPoint& p1, const VectorPoint& p2,
             c1.SetPoint(i,p2.GetPoint()[i]);
             c2.SetPoint(i, p1.GetPoint()[i]);
         }
+        //IMO DZIAŁA GORZEJ
+        // for(int i = 0; i < p1.GetPoint().size(); ++i) {
+        //         double x_a = p1.GetPoint(i);
+        //         double x_b = p2.GetPoint(i);
+        //         if(x_a > x_b) {
+        //             double center = (x_a - x_b) / 2.0;
+        //             c1.SetPoint(i, x_a + center * dis(rng));
+        //             c2.SetPoint(i, x_a + center * dis(rng));
+        //         }
+        //         else {
+        //             double center = (x_b - x_a) / 2.0;
+        //             c1.SetPoint(i, x_b + center * dis(rng));
+        //             c2.SetPoint(i, x_a + center * dis(rng));
+        //         }
+        //
+        // }
     }
 
     return {c1, c2};
 }
 
 template<typename T>
-T tournamentSelection(const std::vector<T>& population, int eval_function, int tournament_size = 3) {
+T tournamentSelection(const std::vector<T>& population, int eval_function, int tournament_size = 5) {
     std::uniform_int_distribution<int> dist(0, POP_SIZE - 1);
     T best_individual = population[dist(rng)];
     double best_fitness = evaluate(best_individual, eval_function);
@@ -124,14 +141,21 @@ void mutate(T& individual, double min_value, double max_value) {
         }
         individual.SetPoint(coordinates);
     } else if constexpr (std::is_same_v<T, VectorPoint>) {
-        std::uniform_real_distribution<double> dis(min_value, max_value);
-        std::vector<double> point_coordinates = individual.GetPoint();
+        std::normal_distribution<double> normal_dis(0,1);
         for (int i = 0; i < DIMENSIONS; ++i) {
             if (dist(rng) < 0.5) {
-                point_coordinates[i] = dis(rng);
+                //new single coordinate value (add normal distribution(0,1)
+                double new_single_coordinate = individual.GetPoint(i) + normal_dis(rng);
+                //check if new value is in range
+                if (new_single_coordinate < min_value) {
+                    new_single_coordinate = min_value;
+                } else if (new_single_coordinate > max_value) {
+                    new_single_coordinate = max_value;
+                }
+                //set new value
+                individual.SetPoint(i, new_single_coordinate);
             }
         }
-        individual.SetPoint(point_coordinates);
     } else {
         static_assert("Unsupported type for mutate.");
     }
@@ -144,32 +168,48 @@ std::vector<double> evolutionary_algorithm_real_valued(double m, int evaluation_
     double best_fitness = DBL_MAX;
     std::vector<double> evaluation_values;
 
-    for (const auto& individual : population) {
-        best_fitness = std::min(best_fitness, evaluate(individual, evaluation_function)); // albo 2
-    }
-
-    evaluation_values.push_back(best_fitness);
+    //vector for evaluation values of single population
+    std::vector<double> evaluation_values_population(POP_SIZE);
+    //indexes of best and second best individual in the single population
+    int best_individual_index = 0;
+    int second_best_individual_index = 0;
 
     for (int iter = 0; iter < MAX_ITER; ++iter) {
+        //calculate evaluation values for each individual in the population
+        for (int i = 0; i < POP_SIZE; ++i) {
+            double evaluation_value = evaluate(population[i], evaluation_function);
+            evaluation_values_population[i] = evaluation_value;
+            if (evaluation_value < best_fitness) {
+                best_fitness = evaluation_value;
+                second_best_individual_index = best_individual_index;
+                best_individual_index = i;
+            } else if (evaluation_value < evaluation_values_population[second_best_individual_index] || best_individual_index == second_best_individual_index) {
+                second_best_individual_index = i;
+            }
+        }
+        //save the best fitness value
+        evaluation_values.push_back(best_fitness);
         std::vector<T> p_prime;
 
+        //to the EMPTY p_prime vector add the best and second-best individual from the previous population
+        p_prime.push_back(population[best_individual_index]);
+        p_prime.push_back(population[second_best_individual_index]);
+
         while(p_prime.size() < POP_SIZE) {
+            //tutaj też można zoptymalizować i zamiast tworzyć nowe punkty to zwracać indkesy istneijących ale to mała zmiana chyba
             T parent_1 = tournamentSelection(population, evaluation_function);
             T parent_2 = tournamentSelection(population, evaluation_function);
 
+            //wydaje mi się że to można jeszcze zoptymalizować i zamiast tworzyć nowe punkty to zmeiniać istniejące tak jak w mutate
             auto offspring = crossover(parent_1, parent_2);
 
             mutate(offspring[0], min_value, max_value);
             mutate(offspring[1], min_value, max_value);
 
-            best_fitness = std::min(best_fitness, evaluate(offspring[0], evaluation_function));
-            best_fitness = std::min(best_fitness, evaluate(offspring[1], evaluation_function));
-
             p_prime.push_back(offspring[0]);
             p_prime.push_back(offspring[1]);
         }
 
-        evaluation_values.push_back(best_fitness);
         population = p_prime;
     }
 
