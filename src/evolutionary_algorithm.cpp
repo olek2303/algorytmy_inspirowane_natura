@@ -16,12 +16,14 @@ const int BITS_PER_DIMENSION = 16;
 const int MAX_ITER_EXPERIMENT = 100;
 const int DIMENSIONS = 10;
 const int MAX_ITER = 10000;
-const int POP_SIZE = 10;
+const int POP_SIZE_DBL = 10;
+const int POP_SIZE_INT = 3;
 
 std::mt19937 rng(std::random_device{}());
 
 template<typename T>
 std::vector<T> initializePopulation(double min_value, double max_value) {
+    constexpr const int POP_SIZE = std::is_same_v<T, IntPoint> ? POP_SIZE_INT : POP_SIZE_DBL;
     std::vector<T> population(POP_SIZE);
     std::uniform_int_distribution<int> dist(0, 1);
 
@@ -46,7 +48,6 @@ std::vector<T> initializePopulation(double min_value, double max_value) {
         static_assert("Unsupported type for initializePopulation.");
         return 0.0;
     }
-
 
     return population;
 }
@@ -112,6 +113,10 @@ std::vector<VectorPoint> crossover(const VectorPoint& p1, const VectorPoint& p2,
 
 template<typename T>
 T tournamentSelection(const std::vector<T>& population, int eval_function, int tournament_size = 5) {
+    constexpr const int POP_SIZE = std::is_same_v<T, IntPoint> ? POP_SIZE_INT : POP_SIZE_DBL;
+    if constexpr (std::is_same_v<T, IntPoint>) {
+        tournament_size = 3;
+    }
     std::uniform_int_distribution<int> dist(0, POP_SIZE - 1);
     T best_individual = population[dist(rng)];
     double best_fitness = evaluate(best_individual, eval_function);
@@ -164,6 +169,7 @@ void mutate(T& individual, double min_value, double max_value) {
 
 template<typename T>
 std::vector<double> evolutionary_algorithm_real_valued(double m, int evaluation_function, double min_value, double max_value) {
+    constexpr const int POP_SIZE = std::is_same_v<T, IntPoint> ? POP_SIZE_INT : POP_SIZE_DBL;
     std::vector<T> population = initializePopulation<T>(min_value, max_value);
     double best_fitness = DBL_MAX;
     std::vector<double> evaluation_values;
