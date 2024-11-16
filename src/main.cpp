@@ -4,6 +4,7 @@
 #include "../include/simulated_annealing.h"
 #include "../include/functions.h"
 #include "../include/evolutionary_algorithm.h"
+#include "../include/ecdf_summary.h"
 #include <iostream>
 #include <fstream>
 
@@ -67,13 +68,25 @@ void exercise_evolutionary_algorithm() {
     save_series_to_csv(double_fun_2, "double_fun_2.csv");
 }
 
+void exercise_ECDF() {
+    save_transposed_values("../lab4_files/binary_fun_1.csv", "../lab5_files/binary_fun_1_transposed.txt");
+    save_transposed_values("../lab4_files/binary_fun_2.csv", "../lab5_files/binary_fun_2_transposed.txt");
+    save_transposed_values("../lab4_files/double_fun_1.csv", "../lab5_files/double_fun_1_transposed.txt");
+    save_transposed_values("../lab4_files/double_fun_2.csv", "../lab5_files/double_fun_2_transposed.txt");
+
+    count_ECDF("../lab5_files/binary_fun_1_transposed.txt", "../lab5_files/binary_fun_1_ECDF.txt");
+    count_ECDF("../lab5_files/binary_fun_2_transposed.txt", "../lab5_files/binary_fun_2_ECDF.txt");
+    count_ECDF("../lab5_files/double_fun_1_transposed.txt", "../lab5_files/double_fun_1_ECDF.txt");
+    count_ECDF("../lab5_files/double_fun_2_transposed.txt", "../lab5_files/double_fun_2_ECDF.txt");
+
+}
+
 int main() {
-    //exercise_1();
-
-   // exercise_local_search();
-
-   //exercise_simulated_annealing();
-    exercise_evolutionary_algorithm();
-//     runExperiments();
+//   exercise_1();
+//   exercise_local_search();
+//   exercise_simulated_annealing();
+//   exercise_evolutionary_algorithm();
+//   runExperiments();
+    exercise_ECDF();
     return 0;
 }

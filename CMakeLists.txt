@@ -14,5 +14,5 @@ add_executable(MyProject
         src/functions.cpp
         src/Point.cpp
         src/evolutionary_algorithm.cpp
-        src/evolutionary_algorithm.cpp
+        src/ecdf_summary.cpp
 )
