@@ -1,0 +1,6 @@
+#ifndef MYPROJECT_OPERATORS_AND_SELECTION_H
+#define MYPROJECT_OPERATORS_AND_SELECTION_H
+
+#include "../include/Float_representation.h"
+
+#endif //MYPROJECT_OPERATORS_AND_SELECTION_H
