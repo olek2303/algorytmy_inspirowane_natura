@@ -7,19 +7,17 @@
 
 class Float_representation {
     int dimensions;
-    int bits_per_dimension;
     std::vector<double> data;
 
 public:
-    Float_representation(int dimensions = 10, int bits_per_dimension = 16)
-            : dimensions(dimensions), bits_per_dimension(bits_per_dimension), data(dimensions, 0.0f) {}
+    Float_representation(int dimensions = 10)
+            : dimensions(dimensions), data(dimensions, 0.0f) {}
 
     ~Float_representation() = default;
 
     void SetDimensionValue(int dimension, double value);
-    double GetDimensionValue(int dimension) const;
-    int GetDimensions() const { return dimensions; }
-    int GetBitsPerDim() const { return bits_per_dimension; }
+    double GetDimensionValue(int dimension) const;  // zwraca wartosc w danym wymiarze
+    int GetDimensions() const { return dimensions; }    // liczba wymiarow
     void SetPoint(std::vector<double> coordinates) { this->data = coordinates; }
     void SetPoint(int index, double value) { this->data[index] = value; }
     std::vector<double> GetPoint() const { return data; }
