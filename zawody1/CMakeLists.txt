@@ -9,5 +9,6 @@ add_executable(MyProject
         src/main.cpp
         src/Float_representation.cpp
         src/ecdf_summary.cpp
-        include/evaluation_functions.h
+        src/operators_and_selection.cpp
+        src/evolutionary_algorithm.cpp
 )

@@ -5,7 +5,7 @@
 #include <cmath>
 #include <stdexcept>
 
-double evaluate_rosenbrock(const Float_representation& float_repr, double min_value, double max_value) {
+inline double evaluate_rosenbrock(const Float_representation& float_repr) {
     int dimensions = float_repr.GetDimensions();
     if (dimensions < 2) {
         throw std::invalid_argument("Rosenbrock function requires at least 2 dimensions.");
@@ -22,7 +22,7 @@ double evaluate_rosenbrock(const Float_representation& float_repr, double min_va
     return result;
 }
 
-double evaluate_salomon(const Float_representation& float_repr, double min_value, double max_value) {
+inline double evaluate_salomon(const Float_representation& float_repr) {
     int dimensions = float_repr.GetDimensions();
     if (dimensions < 1) {
         throw std::invalid_argument("Salomon function requires at least 1 dimension.");
@@ -38,7 +38,7 @@ double evaluate_salomon(const Float_representation& float_repr, double min_value
     return -std::cos(2 * M_PI * norm) + 0.1 * norm + 1.0;
 }
 
-double evaluate_whitley(const Float_representation& float_repr, double min_value, double max_value) {
+inline double evaluate_whitley(const Float_representation& float_repr) {
     int dimensions = float_repr.GetDimensions();
     if (dimensions < 2) {
         throw std::invalid_argument("Whitley function requires at least 2 dimensions.");
@@ -55,6 +55,15 @@ double evaluate_whitley(const Float_representation& float_repr, double min_value
     }
 
     return result;
+}
+
+inline double evaluate(const Float_representation& float_repr, int evaluation_function) {
+    switch (evaluation_function) {
+        case 1: return evaluate_rosenbrock(float_repr);
+        case 2: return evaluate_salomon(float_repr);
+        case 3: return evaluate_whitley(float_repr);
+        default: throw std::invalid_argument("Invalid evaluation function.");
+    }
 }
 
 #endif //MYPROJECT_EVALUATION_FUNCTIONS_H
