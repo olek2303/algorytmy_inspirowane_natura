@@ -3,35 +3,13 @@
 #include "../include/evaluation_functions.h"
 #include "../include/Float_representation.h"
 #include <fstream>
+#include "../include/eval_experiments.h"
 
-int function_call_count = 0;
-
-void run_experiment() {
-    int n_of_experimetns = 1;
-    int n_of_dim_1 = 5;
-    int n_of_dim_2 = 10;
-    int n_of_dim_3 = 15;
-
-    for(int i =0; i < n_of_experimetns; i++) {
-        std::vector<double> rosenbrock_eval_5_dim = evolutionary_algorithm(0.5, 1, -30, 30, 10, n_of_dim_1);
-        std::cout << "Liczba rekordów: " << rosenbrock_eval_5_dim.size() << std::endl;
-        std::cout << "Best fitness: " << rosenbrock_eval_5_dim.back() << std::endl;
-        // std::vector<double> salomon_eval_5_dim = evolutionary_algorithm(0.5, 2, -100, 100, 10, n_of_dim_1);
-        // std::vector<double> whitney_eval_5_dim =evolutionary_algorithm(0.5, 3, -10.24, 10.24, 10, n_of_dim_1);
-        //
-        // std::vector<double> rosenbrock_eval_10_dim = evolutionary_algorithm(0.5, 1, -30, 30, 10, n_of_dim_2);
-        // std::vector<double> salomon_eval_10_dim = evolutionary_algorithm(0.5, 2, -100, 100, 10, n_of_dim_2);
-        // std::vector<double> whitney_eval_10_dim = evolutionary_algorithm(0.5, 3, -10.24, 10.24, 10, n_of_dim_2);
-        //
-        // std::vector<double> rosenbrock_eval_15_dim = evolutionary_algorithm(0.5, 1, -30, 30, 10, n_of_dim_3);
-        // std::vector<double> salomon_eval_15_dim = evolutionary_algorithm(0.5, 2, -100, 100, 10, n_of_dim_3);
-        // std::vector<double> whitney_eval_15_dim = evolutionary_algorithm(0.5, 3, -10.24, 10.24, 10, n_of_dim_3);
-
-    }
-
+void run_experiments() {
+    run_rosenbrock();
+    run_salomon();
+    run_whitney();
     //trzeba to jakoś zapisac jeszcze żeby kolumny to były eksperymenty, a wiersze to wartości z tych wektorów
-
-
 }
 
 void save_test_to_csv(const std::vector<Float_representation>& population, const std::vector<double>& evaluation_values, const std::string& filename) {
@@ -78,7 +56,7 @@ void test_evaluation_functions() {
 
 
 int main() {
-    //test_evaluation_functions();
-    run_experiment();
+//    test_evaluation_functions();
+    run_experiments();
     return 0;
 }

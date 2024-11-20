@@ -32,7 +32,7 @@ void initializePopulation(std::vector<Float_representation>& population, double 
      //indexes of best and second best individual in the single population
      int best_individual_index = 0;
      int second_best_individual_index = 0;
-    evaluation_values.push_back(best_fitness);
+     evaluation_values.push_back(best_fitness);
 
      for (int iter = function_call_count; iter < 10000 * dimensions; ++iter) {
          //TRZEBA DODAĆ SPRAWDZANIE FUNCTION_CALL_COUNT W KODZIE BO MOŻE WEJŚĆ W PĘTLE JAK MA 49999 a w petli dojdzie do 50001

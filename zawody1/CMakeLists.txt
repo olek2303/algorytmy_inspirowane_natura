@@ -11,4 +11,5 @@ add_executable(MyProject
         src/ecdf_summary.cpp
         src/operators_and_selection.cpp
         src/evolutionary_algorithm.cpp
+        src/eval_experiments.cpp
 )
