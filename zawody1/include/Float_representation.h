@@ -8,10 +8,12 @@
 class Float_representation {
     int dimensions;
     std::vector<double> data;
+    //jeżeli dla jakiegoś punktu już policzyliśmy wartość ewaluacji to ją zapisujemy, żeby nie liczyć jej ponownie
+    double evaluation_value;
 
 public:
     Float_representation(int dimensions = 10)
-            : dimensions(dimensions), data(dimensions, 0.0f) {}
+            : dimensions(dimensions), data(dimensions, 0.0f), evaluation_value(0.0) {}
 
     ~Float_representation() = default;
 
@@ -22,7 +24,18 @@ public:
     void SetPoint(int index, double value) { this->data[index] = value; }
     std::vector<double> GetPoint() const { return data; }
     double GetPoint(int index) const { return data[index]; }
-
+    double GetEvaluationValue() const { return evaluation_value; }
+    void SetEvaluationValue(double value) { evaluation_value = value; }
+    //operator kopiowania
+    Float_representation& operator=(const Float_representation& other) {
+        if (this == &other) {
+            return *this; // handle self assignment
+        }
+        dimensions = other.dimensions;
+        data = other.data;
+        evaluation_value = other.evaluation_value;
+        return *this;
+    }
 
     void Print() const {
         for (int i = 0; i < dimensions; ++i) {

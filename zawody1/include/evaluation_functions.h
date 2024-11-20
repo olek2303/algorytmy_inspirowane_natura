@@ -5,6 +5,8 @@
 #include <cmath>
 #include <stdexcept>
 
+extern int function_call_count;
+
 inline double evaluate_rosenbrock(const Float_representation& float_repr) {
     int dimensions = float_repr.GetDimensions();
     if (dimensions < 2) {
@@ -58,6 +60,7 @@ inline double evaluate_whitley(const Float_representation& float_repr) {
 }
 
 inline double evaluate(const Float_representation& float_repr, int evaluation_function) {
+    function_call_count++;
     switch (evaluation_function) {
         case 1: return evaluate_rosenbrock(float_repr);
         case 2: return evaluate_salomon(float_repr);

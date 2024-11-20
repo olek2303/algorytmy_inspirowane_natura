@@ -45,21 +45,24 @@ void mutate(Float_representation& individual, double min_value, double max_value
     }
 }
 
-Float_representation tournamentSelection(const std::vector<Float_representation>& population, int eval_function, int tournament_size) {
+Float_representation tournamentSelection(std::vector<Float_representation>& population, int eval_function, int tournament_size) {
     int POP_SIZE = population.size();
 
     std::uniform_int_distribution<int> dist(0, POP_SIZE - 1);
     Float_representation best_individual = population[dist(rng)];
     double best_fitness = evaluate(best_individual, eval_function);
+    best_individual.SetEvaluationValue(best_fitness);
 
     for (int i = 1; i < tournament_size; ++i) {
-        const Float_representation& individual = population[dist(rng)];
-        double fitness = evaluate(individual, eval_function);
+        int idx = dist(rng);
+        double fitness = evaluate(population[idx], eval_function);
+        population[idx].SetEvaluationValue(fitness);
         if (fitness < best_fitness) {
-            best_individual = individual;
+            best_individual = population[idx];
             best_fitness = fitness;
         }
     }
+
 
     return best_individual;
 }
