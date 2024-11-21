@@ -4,11 +4,12 @@
 #include "../include/Float_representation.h"
 #include <fstream>
 #include "../include/eval_experiments.h"
+#include "../include/ecdf_summary.h"
 
 void run_experiments() {
     run_rosenbrock();
-    run_salomon();
-    run_whitney();
+    //run_salomon();
+    //run_whitney();
     //trzeba to jakoś zapisac jeszcze żeby kolumny to były eksperymenty, a wiersze to wartości z tych wektorów
 }
 
@@ -56,7 +57,8 @@ void test_evaluation_functions() {
 
 
 int main() {
-   test_evaluation_functions();
-   // run_experiments();
+   // test_evaluation_functions();
+   run_experiments();
+    // count_ECDF("../data/rosenbrock_5_dim.txt", "../data/rosenbrock_5_dim_ECDF.txt", 5);
     return 0;
 }

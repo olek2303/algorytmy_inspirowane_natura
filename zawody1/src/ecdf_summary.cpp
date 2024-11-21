@@ -49,8 +49,8 @@ int zliczPrzekroczoneProgiJ(double v, std::vector<double>& vec) {
 
 // Obliczanie wartości do wykresu ECDF na podstawie danych surowych
 // zawartych w przykładowym pliku "data.txt"
-void count_ECDF(const std::string& inputFile, const std::string& outputFile) {
-    double n = 10; // liczba wymiarów przestrzeni poszukiwań
+void count_ECDF(const std::string& inputFile, const std::string& outputFile, double dimensions) {
+    double n = dimensions; // liczba wymiarów przestrzeni poszukiwań
     double MaxNFFC = 10000; // maksymalna liczba wywołań funkcji F
     std::vector<double> pF(41, 0); // progi budżetu wywołań funkcji F
     std::vector<double> pJ(51, 0); // progi jakości rozwiązania
@@ -73,11 +73,13 @@ void count_ECDF(const std::string& inputFile, const std::string& outputFile) {
 
         // generujemy zawartość dla kolumn
         while (getline(fdata, line)) {
+
             // odczytana linia zawiera 100 liczb - wartoście aktualnego najlepszego znalezionego
             // rozwiązania w każdym ze 100 eksperymentów w danym wywołaniu funkcji F
-            if (counter * n >= pF[pFcounter]) {
+            if (counter >= pF[pFcounter]) {
                 // obliczamy ile progów jakości przekroczyła każda z wartości w odczytanej linii
                 std::istringstream iss(line);
+                //std::cout << line << std::endl;
                 std::vector<double> Fvec(100, 0);
                 for (double& liczbaProgow : Fvec) {
                     iss >> val;
@@ -89,7 +91,7 @@ void count_ECDF(const std::string& inputFile, const std::string& outputFile) {
                     int ekspNum = 0;
                     for (double liczbaProgow : Fvec)
                         if (liczbaProgow > i) ekspNum++;
-                    fecdf << ekspNum << " ";
+                    fecdf << ekspNum << ";";
                 }
                 fecdf << std::endl;
                 std::cout << pFcounter++ << std::endl;
