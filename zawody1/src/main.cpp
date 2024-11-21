@@ -15,12 +15,12 @@ void run_experiments() {
 void save_test_to_csv(const std::vector<Float_representation>& population, const std::vector<double>& evaluation_values, const std::string& filename) {
     std::ofstream file(filename);
     if (file.is_open()) {
-        file << "Population,Evaluation\n";
+        file << "x1;x2;Evaluation\n";
         for (size_t i = 0; i < population.size(); ++i) {
             for (int j = 0; j < population[i].GetDimensions(); ++j) {
                 file << population[i].GetDimensionValue(j);
                 if (j < population[i].GetDimensions() - 1) {
-                    file << " ";
+                    file << ";";
                 }
             }
             file << ";" << evaluation_values[i] << "\n";
@@ -56,7 +56,7 @@ void test_evaluation_functions() {
 
 
 int main() {
-//    test_evaluation_functions();
-    run_experiments();
+   test_evaluation_functions();
+   // run_experiments();
     return 0;
 }
