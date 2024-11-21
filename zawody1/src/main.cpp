@@ -8,9 +8,8 @@
 
 void run_experiments() {
     run_rosenbrock();
-    //run_salomon();
-    //run_whitney();
-    //trzeba to jakoś zapisac jeszcze żeby kolumny to były eksperymenty, a wiersze to wartości z tych wektorów
+    run_salomon();
+    run_whitney();
 }
 
 void save_test_to_csv(const std::vector<Float_representation>& population, const std::vector<double>& evaluation_values, const std::string& filename) {
@@ -59,6 +58,6 @@ void test_evaluation_functions() {
 int main() {
    // test_evaluation_functions();
    run_experiments();
-    // count_ECDF("../data/rosenbrock_5_dim.txt", "../data/rosenbrock_5_dim_ECDF.txt", 5);
+    // count_ECDF("../data/salomon_eval_5_dim.txt", "../data/salomon_eval_5_dim_ECDF.txt", 5);
     return 0;
 }
