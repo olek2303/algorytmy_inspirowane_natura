@@ -68,7 +68,7 @@ void count_ECDF(const std::string& inputFile, const std::string& outputFile, dou
         // generujemy nagłówki dla kolumn, których jest
         // tyle, ile progów jakości, czyli 51
         for (auto i = pJ.rbegin(); i != pJ.rend(); ++i)
-            fecdf << *i << " ";
+            fecdf << *i << ";";
         fecdf << std::endl;
 
         // generujemy zawartość dla kolumn
@@ -80,7 +80,8 @@ void count_ECDF(const std::string& inputFile, const std::string& outputFile, dou
                 // obliczamy ile progów jakości przekroczyła każda z wartości w odczytanej linii
                 std::istringstream iss(line);
                 //std::cout << line << std::endl;
-                std::vector<double> Fvec(100, 0);
+                //std::vector<double> Fvec(100, 0);
+                std::vector<double> Fvec(300, 0);
                 for (double& liczbaProgow : Fvec) {
                     iss >> val;
                     liczbaProgow = zliczPrzekroczoneProgiJ(val, pJ);
