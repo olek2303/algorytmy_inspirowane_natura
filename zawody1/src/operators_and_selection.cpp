@@ -7,60 +7,50 @@
 
 std::mt19937 rng(std::random_device{}());
 std::vector<Float_representation> crossover(const Float_representation& p1, const Float_representation& p2, double r_cross) {
-    std::uniform_real_distribution<> dis(0.0, 1.0);
-    std::uniform_int_distribution<> dis_int(1, p1.GetPoint().size() - 2);
+    std::uniform_real_distribution<> dis(0.0, 1.0); // Dystrybucja dla r_cross i alpha
 
-    Float_representation c1 = p1;
-    Float_representation c2 = p2;
+    Float_representation c1 = p1; // Potomek 1
+    Float_representation c2 = p2; // Potomek 2
 
+    // Sprawdź, czy krzyżowanie się odbywa
     if (dis(rng) < r_cross) {
-        //IMO DZIAŁA GORZEJ
-         for(int i = 0; i < p1.GetPoint().size(); ++i) {
-                 double x_a = p1.GetPoint(i);
-                 double x_b = p2.GetPoint(i);
-                 if(x_a > x_b) {
-                     double center = (x_a - x_b) / 2.0;
-                     c1.SetPoint(i, x_a + center * dis(rng));
-                     c2.SetPoint(i, x_a + center * dis(rng));
-                 }
-                 else {
-                     double center = (x_b - x_a) / 2.0;
-                     c1.SetPoint(i, x_b + center * dis(rng));
-                     c2.SetPoint(i, x_a + center * dis(rng));
-                 }
+        for (int i = 0; i < p1.GetPoint().size(); ++i) {
+            double alpha = dis(rng); // Współczynnik liniowej kombinacji
+            double x_a = p1.GetPoint(i);
+            double x_b = p2.GetPoint(i);
 
-         }
-        // int pt = dis_int(rng);
-        //
-        // for (int i = pt; i < p1.GetPoint().size(); ++i) {
-        //     c1.SetPoint(i,p2.GetPoint()[i]);
-        //     c2.SetPoint(i, p1.GetPoint()[i]);
-        // }
+            // Oblicz geny dla dzieci
+            c1.SetPoint(i, alpha * x_a + (1 - alpha) * x_b);
+            c2.SetPoint(i, alpha * x_b + (1 - alpha) * x_a);
+        }
     }
 
     return {c1, c2};
 }
 
-void mutate(Float_representation& individual, double min_value, double max_value) {
+void mutate(Float_representation& individual, double min_value, double max_value, double mutation_rate, int dim) {
     std::uniform_real_distribution<double> dist(0.0, 1.0);
+    std::normal_distribution<double> normal_dis(0, 1);
+    double sigma = 1.0 - (double)function_call_count / (10000 * dim);
 
-    std::normal_distribution<double> normal_dis(0,1);
     for (int i = 0; i < individual.GetDimensions(); ++i) {
-        if (dist(rng) < 0.5) {
-            //new single coordinate value (add normal distribution(0,1)
-            double new_single_coordinate = individual.GetPoint(i) + normal_dis(rng);
-            //check if new value is in range
-            if (new_single_coordinate < min_value) {
-                new_single_coordinate = max_value - (min_value - new_single_coordinate);
+        if (dist(rng) < mutation_rate) {
+            double new_single_coordinate = individual.GetPoint(i) + normal_dis(rng) * sigma;
+
+            // Adaptive boundary handling (clamping)
+            new_single_coordinate = std::max(min_value, std::min(max_value, new_single_coordinate));
+
+            // Random jump mutation (10% chance)
+            if (dist(rng) < 0.1) {
+                new_single_coordinate = min_value + dist(rng) * (max_value - min_value);
             }
-            if (new_single_coordinate > max_value) {
-                new_single_coordinate = min_value + (new_single_coordinate - max_value);
-            }
-            //set new value
+
+            // Set new value
             individual.SetPoint(i, new_single_coordinate);
         }
     }
 }
+
 
 Float_representation tournamentSelection(std::vector<Float_representation>& population, int tournament_size, const std::vector<double>& eval_values) {
     int POP_SIZE = population.size();

@@ -40,13 +40,13 @@ void run_rosenbrock() {
         rosenbrock_eval_5_dim_all.push_back(rosenbrock_eval_5_dim);
         function_call_count = 0;
 
-        std::vector<double> rosenbrock_eval_15_dim = evolutionary_algorithm(0.5, 1, -30, 30, 20, n_of_dim_2, 5);
+        std::vector<double> rosenbrock_eval_15_dim = evolutionary_algorithm(0.5, 1, -30, 30, 50, n_of_dim_2, 25);
         std::cout << "R15 eksperyment nr: "<< i << " Liczba rekordów: " << rosenbrock_eval_15_dim.size() << "Best fitness: "
                   << rosenbrock_eval_15_dim.back() << std::endl;
         rosenbrock_eval_15_dim_all.push_back(rosenbrock_eval_15_dim);
         function_call_count = 0;
 
-        std::vector<double> rosenbrock_eval_30_dim = evolutionary_algorithm(0.5, 1, -30, 30, 20, n_of_dim_3, 5);
+        std::vector<double> rosenbrock_eval_30_dim = evolutionary_algorithm(0.5, 1, -30, 30, 150, n_of_dim_3, 85);
          std::cout << "R30 eksperyment nr: "<< i <<" Liczba rekordów: " << rosenbrock_eval_30_dim.size() << "Best fitness: "
                   << rosenbrock_eval_30_dim.back() << std::endl;
         rosenbrock_eval_30_dim_all.push_back(rosenbrock_eval_30_dim);
@@ -69,13 +69,13 @@ void run_salomon() {
         salomon_eval_5_dim_all.push_back(salomon_eval_5_dim);
         function_call_count = 0;
 
-        std::vector<double> salomon_eval_15_dim = evolutionary_algorithm(0.5, 2, -100, 100, 10, n_of_dim_2,3);
+        std::vector<double> salomon_eval_15_dim = evolutionary_algorithm(0.5, 2, -100, 100, 150, n_of_dim_2,70);
         std::cout << "S15 eksperyment nr: "<< i << " Liczba rekordów: " << salomon_eval_15_dim.size() << "Best fitness: "
                   << salomon_eval_15_dim.back() << std::endl;
         salomon_eval_15_dim_all.push_back(salomon_eval_15_dim);
         function_call_count = 0;
 
-        std::vector<double> salomon_eval_30_dim = evolutionary_algorithm(0.5, 2, -100, 100, 10, n_of_dim_3 ,3);
+        std::vector<double> salomon_eval_30_dim = evolutionary_algorithm(0.5, 2, -100, 100, 300, n_of_dim_3 ,160);
        std::cout << "S30 eksperyment nr: "<< i << " Liczba rekordów: " << salomon_eval_30_dim.size() << "Best fitness: "
                   << salomon_eval_30_dim.back() << std::endl;
         salomon_eval_30_dim_all.push_back(salomon_eval_30_dim);
@@ -98,13 +98,13 @@ void run_whitney() {
         whitney_eval_5_dim_all.push_back(whitney_eval_5_dim);
         function_call_count = 0;
 
-        std::vector<double> whitney_eval_15_dim = evolutionary_algorithm(0.5, 3, -10.24, 10.24, 10, n_of_dim_2, 3);
+        std::vector<double> whitney_eval_15_dim = evolutionary_algorithm(0.5, 3, -10.24, 10.24, 500, n_of_dim_2, 70);
         std::cout << "W15 eksperyment nr: "<< i << " Liczba rekordów: " << whitney_eval_15_dim.size() << "Best fitness: "
                   << whitney_eval_15_dim.back() << std::endl;
         whitney_eval_15_dim_all.push_back(whitney_eval_15_dim);
         function_call_count = 0;
 
-        std::vector<double> whitney_eval_30_dim = evolutionary_algorithm(0.5, 3, -10.24, 10.24, 10, n_of_dim_3, 3);
+        std::vector<double> whitney_eval_30_dim = evolutionary_algorithm(0.5, 3, -10.24, 10.24, 500, n_of_dim_3, 70);
         std::cout << "W30 eksperyment nr: "<< i << " Liczba rekordów: " << whitney_eval_30_dim.size() << "Best fitness: "
                   << whitney_eval_30_dim.back() << std::endl;
         whitney_eval_30_dim_all.push_back(whitney_eval_30_dim);

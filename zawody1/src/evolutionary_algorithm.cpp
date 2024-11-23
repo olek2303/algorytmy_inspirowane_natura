@@ -75,8 +75,9 @@ void initializePopulation(std::vector<Float_representation>& population, double 
 
              auto offspring = crossover(parent_1, parent_2);
 
-             mutate(offspring[0], min_value, max_value);
-             mutate(offspring[1], min_value, max_value);
+             double adaptive_mutation_rate = std::max(0.01, 1.0 - (double)function_call_count / (10000 * dimensions));
+             mutate(offspring[0], min_value, max_value, adaptive_mutation_rate);
+             mutate(offspring[1], min_value, max_value, adaptive_mutation_rate);
 
              p_prime.push_back(offspring[0]);
              p_prime.push_back(offspring[1]);
