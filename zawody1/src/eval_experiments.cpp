@@ -112,5 +112,5 @@ void run_whitney() {
     }
     save_to_txt(whitney_eval_5_dim_all, "whitney_eval_5_dim.txt");
     save_to_txt(whitney_eval_15_dim_all, "whitney_eval_15_dim.txt");
-    save_to_txt(whitney_eval_15_dim_all, "whitney_eval_30_dim.txt");
+    save_to_txt(whitney_eval_30_dim_all, "whitney_eval_30_dim.txt");
 }
