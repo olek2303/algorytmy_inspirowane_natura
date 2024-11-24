@@ -57,8 +57,10 @@ void test_evaluation_functions() {
 
 int main() {
    // test_evaluation_functions();
-    run_experiments();
-//    count_ECDF("../data/5_dim.txt", "../data/5_dim_ECDF.txt", 5);
+//    run_experiments();
+    count_ECDF("../data/5_dim.txt", "../data/5_dim_ECDF.txt", 5);
+    count_ECDF("../data/15_dim.txt", "../data/15_dim_ECDF.txt", 15);
+    count_ECDF("../data/30_dim.txt", "../data/30_dim_ECDF.txt", 30);
 
     return 0;
 }
