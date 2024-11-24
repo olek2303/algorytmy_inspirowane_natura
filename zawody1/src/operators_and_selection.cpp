@@ -34,7 +34,7 @@ void mutate(Float_representation& individual, double min_value, double max_value
     double sigma = 1.0 - (double)function_call_count / (10000 * dim);
 
     for (int i = 0; i < individual.GetDimensions(); ++i) {
-        if (dist(rng) < 0.15) {
+        if (dist(rng) < mutation_rate) {
             double new_single_coordinate = individual.GetPoint(i) + normal_dis(rng) * sigma;
 
             // Adaptive boundary handling (clamping)
