@@ -7,6 +7,7 @@
 #include <numeric>
 #include <cfloat>
 #include <random>
+#include <algorithm>
 
 std::mt19937 rng2(std::random_device{}());
 
@@ -52,19 +53,31 @@ void initializePopulation(std::vector<Float_representation>& population, double 
                  evaluation_values.push_back(evaluation_values.back());
 
              evaluation_values_population[i] = evaluation_value;
-             if (evaluation_value < best_fitness) {
-                 best_fitness = evaluation_value;
-                 second_best_individual_index = best_individual_index;
-                 best_individual_index = i;
-             } else if (evaluation_value < evaluation_values_population[second_best_individual_index] || best_individual_index == second_best_individual_index) {
-                 second_best_individual_index = i;
-             }
          }
 
+         const double SELECTION_RATE = 0.20; // 25% do zachowania
+
+         // Zmodyfikowany kod:
          std::vector<Float_representation> p_prime;
 
-         p_prime.push_back(population[best_individual_index]);
-         p_prime.push_back(population[second_best_individual_index]);
+         // Para ocena i indeks
+         std::vector<std::pair<double, int>> evaluation_index_pairs;
+
+         for (int i = 0; i < population.size(); ++i) {
+             evaluation_index_pairs.push_back({evaluation_values_population[i], i});
+         }
+
+         // Posortuj po wartości oceny rosnąco
+         std::sort(evaluation_index_pairs.begin(), evaluation_index_pairs.end());
+
+         // Oblicz liczbę osobników do zachowania
+         int num_to_keep = std::max(1, static_cast<int>(SELECTION_RATE * pop_size));
+
+         // Zachowaj najlepsze 20%
+         for (int i = 0; i < num_to_keep; ++i) {
+             int individual_index = evaluation_index_pairs[i].second;
+             p_prime.push_back(population[individual_index]);
+         }
 
 
 
