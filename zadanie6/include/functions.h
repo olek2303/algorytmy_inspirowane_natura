@@ -1,0 +1,1 @@
+//tutaj możemy zerobić funkcję do ładowania danych z pliku, generowania loswych danych do przypadku testowego, zapisywanie do pliku i funkcje do porównywania dwóch rozwiązań

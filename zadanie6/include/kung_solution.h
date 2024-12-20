@@ -1,0 +1,1 @@
+//klasyczek czy głowny kod dla kunga, to robimy w drugiej kolejności

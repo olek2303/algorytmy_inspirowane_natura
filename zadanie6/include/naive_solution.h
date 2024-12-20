@@ -1,0 +1,1 @@
+//naiwne rozwiązanie, głowna pętla, od tego możemy zacząć
