@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.29)
-project(zadanie6)
+project(MyProject)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 
-add_executable(zadanie6 main.cpp)
+add_executable(MyProject
+        src/main.cpp
+        src/functions.cpp
+        src/kung_solution.cpp
+        src/naive_solution.cpp
+)
