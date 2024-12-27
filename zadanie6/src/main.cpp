@@ -6,8 +6,8 @@
 
 int main() {
     size_t nPoints = 1000;
-//    auto data = DataGenerator::readSampleData("../data.txt");
-    auto data = DataGenerator::generateSampleData(nPoints);
+    auto data = DataGenerator::readSampleData("../data.txt");
+    // auto data = DataGenerator::generateSampleData(nPoints);
 
     std::cout << "Finding fronts using the naive algorithm...\n";
     auto naiveFronts = findAllFronts(data, "naive");
