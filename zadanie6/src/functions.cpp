@@ -4,13 +4,23 @@
 
 #include "../include/functions.h"
 
+//bool isDominated(const Point &point, const std::vector<Point> &others) {
+//    for (const auto &other : others) {
+//        if ((other.f1 < point.f1 && other.f2 >= point.f2) || (other.f1 <= point.f1 && other.f2 > point.f2)) {
+//            return true;
+//        }
+//    }
+//    return false;
+//}
+
 bool isDominated(const Point &point, const std::vector<Point> &others) {
     for (const auto &other : others) {
-        if ((other.f1 < point.f1 && other.f2 >= point.f2) || (other.f1 <= point.f1 && other.f2 > point.f2)) {
-            return true;
+        if ((other.f1 <= point.f1 && other.f2 <= point.f2) &&
+            (other.f1 < point.f1 || other.f2 < point.f2)) {
+            return true; // Punkt jest zdominowany
         }
     }
-    return false;
+    return false; // Punkt nie jest zdominowany
 }
 
 std::vector<std::vector<Point>> findAllFronts(const std::vector<Point> &points,
@@ -32,7 +42,7 @@ std::vector<std::vector<Point>> findAllFronts(const std::vector<Point> &points,
         for (const auto &point : remaining) {
             bool inFront = false;
             for (const auto &f : front) {
-                if (std::fabs(point.f1 - f.f1) < 1e-6 && std::fabs(point.f2 - f.f2) < 1e-6) {
+                if (point == f) {
                     inFront = true;
                     break;
                 }

@@ -29,6 +29,21 @@ public:
 
         return data;
     }
+
+    static std::vector<Point> readSampleData(const std::string &filename) {
+        std::vector<Point> data;
+        std::ifstream file(filename);
+        if (!file.is_open()) {
+            std::cerr << "Failed to open file: " << filename << "\n";
+            return data;
+        }
+        double f1, f2;
+        while (file >> f1 >> f2) {
+            data.push_back({f1, f2});
+        }
+        file.close();
+        return data;
+    }
 };
 
 class Visualizer {
@@ -51,7 +66,7 @@ public:
 
         for (size_t i = 0; i < fronts.size(); ++i) {
             for (const auto &point : fronts[i]) {
-                file << std::fixed  << point.f1 << " " << point.f2;
+                file << std::fixed  << point.f1 << " " << point.f2 << "\n";
             }
             file << "\n";
         }

@@ -2,6 +2,7 @@
 // Created by admin on 20.12.2024.
 //
 
+#include <algorithm>
 #include "../include/kung_solution.h"
 
 std::vector<Point> kungParetoFront(std::vector<Point> points) {
@@ -9,9 +10,9 @@ std::vector<Point> kungParetoFront(std::vector<Point> points) {
         return points;
     }
 
-//    auto comp = f1Minimize ? [](const Point &a, const Point &b) { return a.f1 < b.f1; }
-//                           : [](const Point &a, const Point &b) { return a.f1 > b.f1; };
-//    std::sort(points.begin(), points.end(), comp);
+    std::sort(points.begin(), points.end(), [](const Point &a, const Point &b) {
+        return a.f1 < b.f1;
+    });
 
     size_t mid = points.size() / 2;
     std::vector<Point> left(points.begin(), points.begin() + mid);
@@ -22,9 +23,20 @@ std::vector<Point> kungParetoFront(std::vector<Point> points) {
 
     std::vector<Point> merged;
     for (const auto &point : leftFront) {
-        if (!isDominated(point, rightFront)) {
+//        if (!isDominated(point, rightFront)) {
+//            merged.push_back(point);
+//        }
+        bool isDominated = false;
+        for (const auto &f : rightFront) {
+            if (f.f2 > point.f2) {
+                isDominated = true;
+                break;
+            }
+        }
+        if (!isDominated) {
             merged.push_back(point);
         }
+
     }
     merged.insert(merged.end(), rightFront.begin(), rightFront.end());
 
