@@ -22,23 +22,37 @@ std::vector<Point> kungParetoFront(std::vector<Point> points) {
     std::vector<Point> rightFront = kungParetoFront(right);
 
     std::vector<Point> merged;
-    for (const auto &point : leftFront) {
-//        if (!isDominated(point, rightFront)) {
-//            merged.push_back(point);
-//        }
-        bool isDominated = false;
-        for (const auto &f : rightFront) {
-            if (f.f2 > point.f2) {
-                isDominated = true;
-                break;
-            }
-        }
-        if (!isDominated) {
-            merged.push_back(point);
-        }
+    size_t i = 0, j = 0;
 
+    while (i < leftFront.size() && j < rightFront.size()) {
+        if (leftFront[i].f1 < rightFront[j].f1) {
+            if (merged.empty() || merged.back().f2 > leftFront[i].f2) {
+                merged.push_back(leftFront[i]);
+            }
+            i++;
+        } else {
+            if (merged.empty() || merged.back().f2 > rightFront[j].f2) {
+                merged.push_back(rightFront[j]);
+            }
+            j++;
+        }
     }
-    merged.insert(merged.end(), rightFront.begin(), rightFront.end());
+
+// Add remaining points from leftFront
+    while (i < leftFront.size()) {
+        if (merged.empty() || merged.back().f2 > leftFront[i].f2) {
+            merged.push_back(leftFront[i]);
+        }
+        i++;
+    }
+
+// Add remaining points from rightFront
+    while (j < rightFront.size()) {
+        if (merged.empty() || merged.back().f2 > rightFront[j].f2) {
+            merged.push_back(rightFront[j]);
+        }
+        j++;
+    }
 
     return merged;
 }
