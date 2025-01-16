@@ -2,194 +2,141 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
-#include <random>
 #include <fstream>
-
-struct Point {
-    double f1, f2;
-
-    bool operator==(const Point &other) const {
-        return std::fabs(f1 - other.f1) < 1e-6 && std::fabs(f2 - other.f2) < 1e-6;
-    }
-};
+#include <random>
 
 struct Individual {
-    std::vector<double> vars; // Decision variables
-    Point fitness;            // Fitness values
-    double strength;          // Strength value
-    double rawFitness;        // Raw fitness value
-    double density;           // Density estimate
-
-    bool operator!=(const Individual &other) const {
-        return vars != other.vars;
-    }
+    std::vector<double> variables;
+    std::vector<double> objectives;
+    double fitness;
 };
 
-const int POP_SIZE = 500;
-const int ARCHIVE_SIZE = 500;
-const int MAX_GEN = 200;
-const int NUM_VARS = 30;
-const double CROSSOVER_RATE = 0.9;
-//tak było wcześneij
-//const double MUTATION_RATE = 1.0 / NUM_VARS;
-const double MUTATION_RATE = 0.1;
-
-std::mt19937 rng(std::random_device{}());
-std::uniform_real_distribution<> dist(0.0, 1.0);
-
-// ZDT1 objectives
-Point evaluateFitness(const std::vector<double> &vars) {
-    double f1 = vars[0];
-    double g = 1.0 + 9.0 * std::accumulate(vars.begin() + 1, vars.end(), 0.0) / (NUM_VARS - 1);
+std::vector<double> evaluateZDT1(const std::vector<double>& variables) {
+    double f1 = variables[0];
+    double g = 1.0 + 9.0 * std::accumulate(variables.begin() + 1, variables.end(), 0.0) / (variables.size() - 1);
     double h = 1.0 - std::sqrt(f1 / g);
     double f2 = g * h;
     return {f1, f2};
 }
 
-// Generate random individual
-Individual randomIndividual() {
-    Individual ind;
-    ind.vars.resize(NUM_VARS);
-    for (double &var : ind.vars) {
-        var = dist(rng);
+std::vector<Individual> initializePopulation(int populationSize, int numVariables, std::mt19937& rng) {
+    std::uniform_real_distribution<double> dist(0.0, 1.0);
+    std::vector<Individual> population(populationSize);
+    for (auto& ind : population) {
+        ind.variables.resize(numVariables);
+        for (auto& var : ind.variables) {
+            var = dist(rng);
+        }
+        ind.objectives = evaluateZDT1(ind.variables);
     }
-    ind.fitness = evaluateFitness(ind.vars);
-    ind.strength = 0.0;
-    ind.rawFitness = 0.0;
-    ind.density = 0.0;
-    return ind;
+    return population;
 }
 
-// Calculate distance between two individuals
-double distance(const Point &a, const Point &b) {
-    return std::sqrt(std::pow(a.f1 - b.f1, 2) + std::pow(a.f2 - b.f2, 2));
-}
-
-// SPEA2 fitness evaluation
-void evaluateSPEA2Fitness(std::vector<Individual> &population, std::vector<Individual> &archive) {
-    // Combine population and archive
-    std::vector<Individual> combined = population;
-    combined.insert(combined.end(), archive.begin(), archive.end());
-
-    // Calculate strength values
-    for (Individual &ind : combined) {
-        ind.strength = 0.0;
-        for (const Individual &other : combined) {
-            if (ind.fitness.f1 <= other.fitness.f1 && ind.fitness.f2 <= other.fitness.f2 && ind != other) {
-                ind.strength += 1.0;
+void calculateFitness(std::vector<Individual>& population) {
+    for (auto& ind : population) {
+        ind.fitness = 0.0;
+        for (const auto& other : population) {
+            if (other.objectives[0] <= ind.objectives[0] && other.objectives[1] <= ind.objectives[1] && (other.objectives != ind.objectives)) {
+                ind.fitness += 1.0;
             }
         }
     }
-
-    // Calculate raw fitness values
-    for (Individual &ind : combined) {
-        ind.rawFitness = 0.0;
-        for (const Individual &other : combined) {
-            if (other.fitness.f1 <= ind.fitness.f1 && other.fitness.f2 <= ind.fitness.f2 && ind != other) {
-                ind.rawFitness += other.strength;
-            }
-        }
-    }
-
-    // Calculate density values
-    for (Individual &ind : combined) {
-        std::vector<double> distances;
-        for (const Individual &other : combined) {
-            if (ind != other) {
-                distances.push_back(distance(ind.fitness, other.fitness));
-            }
-        }
-        std::sort(distances.begin(), distances.end());
-        ind.density = 1.0 / (distances[std::min((size_t)std::sqrt(combined.size()), distances.size() - 1)] + 2.0);
-    }
-
-    // Assign final fitness values
-    for (Individual &ind : combined) {
-        ind.rawFitness += ind.density;
-    }
-
-    // Update archive with non-dominated solutions
-    archive.clear();
-    for (const Individual &ind : combined) {
-        if (ind.rawFitness < 1.0) {
-            archive.push_back(ind);
-        }
-    }
-
-    // If archive exceeds size, reduce it
-    if (archive.size() > ARCHIVE_SIZE) {
-        std::sort(archive.begin(), archive.end(), [](const Individual &a, const Individual &b) {
-            return a.rawFitness < b.rawFitness;
-        });
-        archive.resize(ARCHIVE_SIZE);
-    }
 }
 
-// Tournament selection
-Individual tournamentSelection(const std::vector<Individual> &population) {
-    int i1 = dist(rng) * population.size();
-    int i2 = dist(rng) * population.size();
-    return population[i1].rawFitness < population[i2].rawFitness ? population[i1] : population[i2];
+std::vector<Individual> tournamentSelection(const std::vector<Individual>& population, int size, std::mt19937& rng) {
+    std::uniform_int_distribution<int> dist(0, population.size() - 1);
+    std::vector<Individual> selected;
+    for (int i = 0; i < size; ++i) {
+        int a = dist(rng);
+        int b = dist(rng);
+        if (population[a].fitness < population[b].fitness) {
+            selected.push_back(population[a]);
+        } else {
+            selected.push_back(population[b]);
+        }
+    }
+    return selected;
 }
 
-// Crossover
-Individual crossover(const Individual &p1, const Individual &p2) {
+Individual crossover(const Individual& parent1, const Individual& parent2, std::mt19937& rng) {
+    std::uniform_real_distribution<double> dist(0.0, 1.0);
     Individual child;
-    child.vars.resize(NUM_VARS);
-    for (int i = 0; i < NUM_VARS; ++i) {
-        child.vars[i] = dist(rng) < 0.5 ? p1.vars[i] : p2.vars[i];
+    child.variables.resize(parent1.variables.size());
+    for (size_t i = 0; i < parent1.variables.size(); ++i) {
+        child.variables[i] = 0.5 * (parent1.variables[i] + parent2.variables[i]);
     }
-    child.fitness = evaluateFitness(child.vars);
+    child.objectives = evaluateZDT1(child.variables);
     return child;
 }
 
-
-double clamp(double value, double min, double max) {
-    return std::max(min, std::min(value, max));
-}
-// Mutation
-void mutate(Individual &ind) {
-    for (double &var : ind.vars) {
-        if (dist(rng) < MUTATION_RATE) {
-            var += dist(rng) - 0.5;
-            var = clamp(var, 0.0, 1.0);
+void mutate(Individual& individual, double mutationRate, std::mt19937& rng) {
+    std::uniform_real_distribution<double> dist(0.0, 1.0);
+    for (auto& var : individual.variables) {
+        if (dist(rng) < mutationRate) {
+            var = dist(rng);
         }
     }
-    ind.fitness = evaluateFitness(ind.vars);
+    individual.objectives = evaluateZDT1(individual.variables);
+}
+
+void writeParetoFront(const std::vector<Individual>& population, const std::string& filename) {
+    std::ofstream file(filename);
+    for (const auto& ind : population) {
+        if (ind.fitness == 0.0) { // Pareto-optimal front
+            file << ind.objectives[0] << " " << ind.objectives[1] << "\n";
+        }
+    }
 }
 
 int main() {
-    // Initialize population and archive
-    std::vector<Individual> population(POP_SIZE);
-    for (Individual &ind : population) {
-        ind = randomIndividual();
-    }
-    std::vector<Individual> archive;
+    const int populationSize = 500;
+    const int numGenerations = 250;
+    const int numVariables = 2;
+    const double mutationRate = 0.4;
 
-    // Evolution loop
-    for (int gen = 0; gen < MAX_GEN; ++gen) {
-        evaluateSPEA2Fitness(population, archive);
+    std::random_device rd;
+    std::mt19937 rng(rd());
 
-        // Create offspring population
+    // Initialize population
+    auto population = initializePopulation(populationSize, numVariables, rng);
+
+    for (int generation = 0; generation < numGenerations; ++generation) {
+        // Evaluate fitness
+        calculateFitness(population);
+
+        // Select parents
+        auto parents = tournamentSelection(population, populationSize, rng);
+
+        // Create offspring
         std::vector<Individual> offspring;
-        while (offspring.size() < POP_SIZE) {
-            Individual p1 = tournamentSelection(archive);
-            Individual p2 = tournamentSelection(archive);
-            Individual child = crossover(p1, p2);
-            mutate(child);
-            offspring.push_back(child);
+        for (size_t i = 0; i < parents.size(); i += 2) {
+            if (i + 1 < parents.size()) {
+                offspring.push_back(crossover(parents[i], parents[i + 1], rng));
+            }
         }
 
-        population = offspring;
+        // Mutate offspring
+        for (auto& child : offspring) {
+            mutate(child, mutationRate, rng);
+        }
+
+        // Combine population and offspring
+        population.insert(population.end(), offspring.begin(), offspring.end());
+
+        // Evaluate fitness again
+        calculateFitness(population);
+
+        // Select next generation
+        std::sort(population.begin(), population.end(), [](const Individual& a, const Individual& b) {
+            return a.fitness < b.fitness;
+        });
+        population.resize(populationSize);
     }
 
-    // Output final Pareto front
-    std::ofstream outFile("pareto_front.txt");
-    for (const Individual &ind : archive) {
-        outFile << ind.fitness.f1 << " " << ind.fitness.f2 << "\n";
-    }
-    outFile.close();
+    // Write Pareto front to file
+    writeParetoFront(population, "pareto_front.txt");
 
-    std::cout << "Pareto front saved to pareto_front.txt\n";
+    std::cout << "Optimization completed. Pareto front written to pareto_front.txt" << std::endl;
+
     return 0;
 }
