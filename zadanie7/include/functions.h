@@ -1,12 +1,17 @@
-#ifndef MYPROJECT_FUNCTIONS_H
-#define MYPROJECT_FUNCTIONS_H
+//
+// Created by xiii5 on 17.01.2025.
+//
 
+#ifndef FUNCTIONS_H
+#define FUNCTIONS_H
+
+#include <algorithm>
+#include <cmath>
+#include <fstream>
 #include <vector>
-#include "representation.h"
+#include "individual.h"
 
+double clamp(double value, double min, double max);
+void writeParetoFront(const std::vector<Individual>& population, const std::string& filename);
 
-bool isDominated(const Point &point, const std::vector<Point> &front);
-std::vector<std::vector<Point>> findAllFronts(const std::vector<Point> &points,
-                                              const std::string &method);
-
-#endif //MYPROJECT_FUNCTIONS_H
+#endif //FUNCTIONS_H
