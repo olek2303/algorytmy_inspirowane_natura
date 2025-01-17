@@ -71,15 +71,13 @@ std::vector<Individual> tournamentSelection(const std::vector<Individual>& popul
     for (int i = 0; i < selectionSize; ++i) {
         std::vector<const Individual*> tournament;
 
-        // Wybierz losowe osobniki do turnieju
         for (int j = 0; j < tournamentSize; ++j) {
             tournament.push_back(&population[dist(rng)]);
         }
 
-        // Znajdź najlepszego osobnika w turnieju
         auto best = *std::min_element(tournament.begin(), tournament.end(),
             [](const Individual* a, const Individual* b) {
-                return a->fitness < b->fitness; // Zmienić na `>` jeśli fitness jest maksymalizowany
+                return a->fitness < b->fitness;
             });
 
         selected.push_back(*best);
