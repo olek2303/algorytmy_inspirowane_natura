@@ -1,22 +1,14 @@
 #include "../include/spea2.h"
 
-std::vector<double> evaluateZDT1(const std::vector<double>& variables) {
-    double f1 = variables[0];
-    double g = 1.0 + 9.0 * std::accumulate(variables.begin() + 1, variables.end(), 0.0) / (variables.size() - 1);
-    double h = 1.0 - std::sqrt(f1 / g);
-    double f2 = g * h;
-    return {f1, f2};
-}
-
-std::vector<Individual> initializePopulation(int populationSize, int numVariables, std::mt19937& rng) {
+std::vector<Individual> initializePopulation(int populationSize, std::mt19937& rng, Evaluator* evaluate) {
     std::uniform_real_distribution<double> dist(0.0, 1.0);
     std::vector<Individual> population(populationSize);
     for (auto& ind : population) {
-        ind.variables.resize(numVariables);
+        ind.variables.resize(evaluate->numVariables);
         for (auto& var : ind.variables) {
             var = dist(rng);
         }
-        ind.objectives = evaluateZDT1(ind.variables);
+        ind.objectives = evaluate->evaluate(ind.variables);
     }
     return population;
 }
@@ -85,7 +77,7 @@ std::vector<Individual> tournamentSelection(const std::vector<Individual>& popul
     return selected;
 }
 
-Individual crossover(const Individual& parent1, const Individual& parent2, std::mt19937& rng, double alpha) {
+Individual crossover(const Individual& parent1, const Individual& parent2, std::mt19937& rng, Evaluator* evaluate) {
     Individual child;
     child.variables.resize(parent1.variables.size());
 
@@ -94,18 +86,18 @@ Individual crossover(const Individual& parent1, const Individual& parent2, std::
         double maxVal = std::max(parent1.variables[i], parent2.variables[i]);
 
         double range = maxVal - minVal;
-        double lowerBound = std::max(0.0, minVal - alpha * range);
-        double upperBound = std::min(1.0, maxVal + alpha * range);
+        double lowerBound = std::max(0.0, minVal - crossoverStrength * range);
+        double upperBound = std::min(1.0, maxVal + crossoverStrength * range);
 
         child.variables[i] = std::uniform_real_distribution<double>(lowerBound, upperBound)(rng);
         child.variables[i] = clamp(child.variables[i], 0.0, 1.0);
     }
 
-    child.objectives = evaluateZDT1(child.variables);
+    child.objectives = evaluate->evaluate(child.variables);
     return child;
 }
 
-void mutate(Individual& individual, double mutationRate, double mutationStrength, std::mt19937& rng) {
+void mutate(Individual& individual, std::mt19937& rng, Evaluator* evaluate) {
     std::uniform_real_distribution<double> uniformDist(0.0, 1.0);
     std::normal_distribution<double> mutationDist(0.0, mutationStrength);
 
@@ -116,11 +108,12 @@ void mutate(Individual& individual, double mutationRate, double mutationStrength
         }
     }
 
-    individual.objectives = evaluateZDT1(individual.variables);
+    individual.objectives = evaluate->evaluate(individual.variables);
 }
 
-std::vector<Individual> spea2 (std::vector<Individual> population, std::mt19937 rng) {
+void spea2(std::mt19937 rng, Evaluator* evaluate) {
     //initialize population and empty archive
+    std::vector<Individual> population = initializePopulation(populationSize, rng, evaluate);
     std::vector<Individual> archive;
 
     for (int generation = 0; generation < numGenerations; ++generation) {
@@ -149,24 +142,25 @@ std::vector<Individual> spea2 (std::vector<Individual> population, std::mt19937 
         std::vector<Individual> offspring;
         for (size_t i = 0; i < parents.size(); i += 2) {
             if (i + 1 < parents.size()) {
-                offspring.push_back(crossover(parents[i], parents[i + 1], rng, crossoverStrength));
+                offspring.push_back(crossover(parents[i], parents[i + 1], rng, evaluate));
             }
         }
 
         //muatuion
         for (auto& child : offspring) {
-            mutate(child, mutationRate, mutationStrength, rng);
+            mutate(child, rng, evaluate);
         }
 
         //update population
         population = offspring;
 
         if (generation == 19 || generation == 49 || generation == 99 || generation == 499) {
-            std::string filename = "archive_" + std::to_string(generation + 1) + ".txt";
+            std::string filename = "archive_" + evaluate->name + "_" + std::to_string(evaluate->numVariables)
+                    + "_" + std::to_string(generation + 1) + ".txt";
             writeArchive(archive, filename);
-            filename = "pareto_" + std::to_string(generation + 1) + ".txt";
+            filename = "pareto_" + evaluate->name + "_" + std::to_string(evaluate->numVariables)
+                    + "_" + std::to_string(generation + 1) + ".txt";
             writeParetoFront(archive, filename);
         }
     }
-    return archive;
 }

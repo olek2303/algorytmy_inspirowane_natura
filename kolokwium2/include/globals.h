@@ -5,12 +5,6 @@
 constexpr int numGenerations = 500;
 constexpr int populationSize = 150;
 const int archiveSize = 150;
-const int numVariables = 50;
-
-// const int numVariables = 30;
-// const int numVariables = 50;
-
-
 
 const double mutationRate = 0.8;
 const double mutationStrength = 0.1;
