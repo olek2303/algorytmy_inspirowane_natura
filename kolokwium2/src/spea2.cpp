@@ -2,11 +2,20 @@
 
 std::vector<Individual> initializePopulation(int populationSize, std::mt19937& rng, Evaluator* evaluate) {
     std::uniform_real_distribution<double> dist(0.0, 1.0);
+    std::uniform_real_distribution<double> distZDT4(-5.0, 5.0);
+
     std::vector<Individual> population(populationSize);
     for (auto& ind : population) {
         ind.variables.resize(evaluate->numVariables);
+        int counter = 0;
         for (auto& var : ind.variables) {
-            var = dist(rng);
+            if(evaluate->name == "ZDT4" && counter > 0) {
+                var = distZDT4(rng);
+            }
+            else {
+                var = dist(rng);
+            }
+            counter++;
         }
         ind.objectives = evaluate->evaluate(ind.variables);
     }
@@ -86,11 +95,25 @@ Individual crossover(const Individual& parent1, const Individual& parent2, std::
         double maxVal = std::max(parent1.variables[i], parent2.variables[i]);
 
         double range = maxVal - minVal;
-        double lowerBound = std::max(0.0, minVal - crossoverStrength * range);
-        double upperBound = std::min(1.0, maxVal + crossoverStrength * range);
+        double lowerBound;
+        double upperBound;
+        if(evaluate->name == "ZDT4" && i > 0) {
+            lowerBound = std::max(-5.0, minVal - crossoverStrength * range);
+            upperBound = std::min(5.0, maxVal + crossoverStrength * range);
+        }
+        else {
+            lowerBound = std::max(0.0, minVal - crossoverStrength * range);
+            upperBound = std::min(1.0, maxVal + crossoverStrength * range);
+        }
+
 
         child.variables[i] = std::uniform_real_distribution<double>(lowerBound, upperBound)(rng);
-        child.variables[i] = clamp(child.variables[i], 0.0, 1.0);
+        if(evaluate->name == "ZDT4" && i > 0) {
+            child.variables[i] = clamp(child.variables[i], -5.0, 5.0);
+        }
+        else {
+            child.variables[i] = clamp(child.variables[i], 0.0, 1.0);
+        }
     }
 
     child.objectives = evaluate->evaluate(child.variables);
@@ -100,15 +123,24 @@ Individual crossover(const Individual& parent1, const Individual& parent2, std::
 void mutate(Individual& individual, std::mt19937& rng, Evaluator* evaluate) {
     std::uniform_real_distribution<double> uniformDist(0.0, 1.0);
     std::normal_distribution<double> mutationDist(0.0, mutationStrength);
-
+    bool mutated = false;
+    int counter = 0;
     for (auto& var : individual.variables) {
         if (uniformDist(rng) < mutationRate) {
             var += mutationDist(rng);
-            var = clamp(var, 0.0, 1.0);
+            if(evaluate->name == "ZDT4" && counter > 0) {
+                var = clamp(var, -5.0, 5.0);
+            }
+            else {
+                var = clamp(var, 0.0, 1.0);
+            }
+            mutated = true;
         }
+        counter++;
     }
-
-    individual.objectives = evaluate->evaluate(individual.variables);
+    if (mutated) {
+        individual.objectives = evaluate->evaluate(individual.variables);
+    }
 }
 
 void spea2(std::mt19937 rng, Evaluator* evaluate) {

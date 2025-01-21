@@ -37,7 +37,7 @@ def plot_pareto_fronts():
 
             plt.xlabel("f1")
             plt.ylabel("f2")
-            plt.title(f"SPEA2 ZDT{zdt_num} ({num_variable}")
+            plt.title(f"SPEA2 ZDT{zdt_num} ({num_variable})")
             plt.legend()
             plt.grid(True)
             plt.xlim(left=0)
