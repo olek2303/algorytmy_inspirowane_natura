@@ -10,27 +10,17 @@ void writeArchive(const std::vector<Individual>& archive, const std::string& fil
         file << archive[i].objectives[0] << " " << archive[i].objectives[1] << "\n";
     }
 }
-std::vector<Individual> findParetoFront(const std::vector<Individual>& individuals) {
+std::vector<Individual> findNotDominated(const std::vector<Individual>& individuals) {
     std::vector<Individual> paretoFront;
     for (const auto& ind : individuals) {
-        bool dominated = false;
-        for (const auto& other : individuals) {
-            if (other.objectives[0] <= ind.objectives[0] &&
-                other.objectives[1] <= ind.objectives[1] &&
-                (other.objectives[0] != ind.objectives[0] || other.objectives[1] != ind.objectives[1])) {
-                dominated = true;
-                break;
-                }
-        }
-        if (!dominated) {
+        if(ind.strength == 0)
             paretoFront.push_back(ind);
-        }
     }
     return paretoFront;
 }
 
 void writeParetoFront(const std::vector<Individual>& archive, const std::string& filename) {
-    auto paretoFront = findParetoFront(archive);
+    auto paretoFront = findNotDominated(archive);
     std::ofstream file(filename);
     for (int i = 0; i < paretoFront.size(); ++i) {
         file << paretoFront[i].objectives[0] << " " << paretoFront[i].objectives[1] << "\n";

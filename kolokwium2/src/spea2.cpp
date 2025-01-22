@@ -25,8 +25,8 @@ std::vector<Individual> initializePopulation(int populationSize, std::mt19937& r
 void calculateStrength(std::vector<Individual>& population) {
     for (auto& ind : population) {
         ind.strength = 0;
-        for (const auto& other : population) {
 
+        for (const auto& other : population) {
             double f1_ind = ind.objectives[0];
             double f2_ind = ind.objectives[1];
             double f1_other = other.objectives[0];
@@ -52,7 +52,11 @@ void calculateDensity(std::vector<Individual>& population, int n_neighbours) {
             }
         }
         std::sort(distances.begin(), distances.end());
-        int k = std::min(static_cast<int>(distances.size()), n_neighbours);
+
+        int k = static_cast<int>(std::sqrt(population.size()));
+
+        k = std::min(k, static_cast<int>(distances.size()));
+
         ind.density = 1.0 / (distances[k - 1] + 2.0);
     }
 }
@@ -156,15 +160,52 @@ void spea2(std::mt19937 rng, Evaluator* evaluate) {
         //evaluate fitness
         calculateFitness(combinedPopulation);
 
-        //sort by fitness
-        std::sort(combinedPopulation.begin(), combinedPopulation.end(), [](const Individual& a, const Individual& b) {
-            return a.fitness < b.fitness;
-        });
-
-        //update archive with the best individuals from old archive and new population
+        //update archive
         archive.clear();
-        for (int i = 0; i < archiveSize && i < combinedPopulation.size(); ++i) {
-            archive.push_back(combinedPopulation[i]);
+        for (const auto& ind : combinedPopulation) {
+            if (ind.strength == 0) {
+                archive.push_back(ind);
+            }
+        }
+
+        if (archive.size() < archiveSize) {
+            std::sort(combinedPopulation.begin(), combinedPopulation.end(), [](const Individual& a, const Individual& b) {
+                return a.fitness < b.fitness;
+            });
+
+            for (const auto& ind : combinedPopulation) {
+                if (archive.size() >= archiveSize) break;  // Przerywamy, gdy archiwum jest pełne
+                if (ind.strength > 0) {
+                    archive.push_back(ind);
+                }
+            }
+        }
+
+        if (archive.size() > archiveSize) {
+            while (archive.size() > archiveSize) {
+                std::vector<std::vector<double>> distances(archive.size(), std::vector<double>(archive.size(), 0.0));
+                for (size_t i = 0; i < archive.size(); ++i) {
+                    for (size_t j = i + 1; j < archive.size(); ++j) {
+                        double distance = 0.0;
+                        for (size_t k = 0; k < archive[i].objectives.size(); ++k) {
+                            distance += std::pow(archive[i].objectives[k] - archive[j].objectives[k], 2);
+                        }
+                        distances[i][j] = distances[j][i] = std::sqrt(distance);
+                    }
+                }
+
+                double minDistance = std::numeric_limits<double>::infinity();
+                size_t idxToRemove = 0;
+                for (size_t i = 0; i < archive.size(); ++i) {
+                    for (size_t j = i + 1; j < archive.size(); ++j) {
+                        if (distances[i][j] < minDistance) {
+                            minDistance = distances[i][j];
+                            idxToRemove = i;
+                        }
+                    }
+                }
+                archive.erase(archive.begin() + idxToRemove);
+            }
         }
 
         //tournament selection
