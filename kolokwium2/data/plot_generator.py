@@ -34,6 +34,6 @@ def plot_pareto_fronts():
             plt.legend()
             plt.grid(True)
             plt.xlim(left=0)
-            plt.savefig('plot_ZDT' + str(zdt_num) + "_" + str(num_variable) + '.png')
+            plt.savefig('plot_ZDT' + str(zdt_num) + "_" + str(num_variable)  + '.png')
 
 plot_pareto_fronts()
